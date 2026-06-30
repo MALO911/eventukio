@@ -31,6 +31,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } elseif ($amount <= 0) {
                 $message = 'Amount must be greater than zero.';
                 $messageType = 'error';
+            } elseif ($amount > 100000000) {
+                $message = 'Maximum deposit limit is 100,000,000 TZS.';
+                $messageType = 'error';
             } else {
                 // For deposit, we only need the PIN (max 4 digits) but we just simulate; no actual PIN validation in DB.
                 // We'll just require a 4-digit PIN (any number) as per spec: "Enter your ____ PIN".

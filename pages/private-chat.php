@@ -110,25 +110,6 @@ $update = $pdo->prepare("UPDATE event_privatechat_messages SET message_status = 
                          WHERE event_id = ? AND chat_id = ? AND receiver_id = ? AND message_status = 'Unread'");
 $update->execute([$event_id, $chat_id, $user_id]);
 
-// Encryption helper functions
-function encryptMessage($plaintext) {
-    $key = ENCRYPTION_KEY;
-    $method = ENCRYPTION_METHOD;
-    $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length($method));
-    $ciphertext = openssl_encrypt($plaintext, $method, $key, 0, $iv);
-    return base64_encode($iv . $ciphertext);
-}
-
-function decryptMessage($encrypted) {
-    $key = ENCRYPTION_KEY;
-    $method = ENCRYPTION_METHOD;
-    $data = base64_decode($encrypted);
-    $iv_len = openssl_cipher_iv_length($method);
-    $iv = substr($data, 0, $iv_len);
-    $ciphertext = substr($data, $iv_len);
-    return openssl_decrypt($ciphertext, $method, $key, 0, $iv);
-}
-
 // Handle AJAX requests
 if (isset($_POST['action'])) {
     header('Content-Type: application/json');

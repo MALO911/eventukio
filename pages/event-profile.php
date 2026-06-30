@@ -190,16 +190,16 @@ $fundraises = $stmt->fetchAll();
                             <div class="relative">
                                 <div id="slideshow" class="relative h-96 bg-gray-200 rounded-2xl overflow-hidden">
                                     <?php if ($media['image_a']): ?>
-                                        <img src="../uploads/events/<?= htmlspecialchars($media['image_a']) ?>" class="slide absolute inset-0 w-full h-full object-cover" alt="Event Image A">
+                                        <img src="../uploads/events/<?= htmlspecialchars(basename($media['image_a'])) ?>" class="slide absolute inset-0 w-full h-full object-cover" alt="Event Image A">
                                     <?php endif; ?>
                                     <?php if ($media['image_b']): ?>
-                                        <img src="../uploads/events/<?= htmlspecialchars($media['image_b']) ?>" class="slide absolute inset-0 w-full h-full object-cover hidden" alt="Event Image B">
+                                        <img src="../uploads/events/<?= htmlspecialchars(basename($media['image_b'])) ?>" class="slide absolute inset-0 w-full h-full object-cover hidden" alt="Event Image B">
                                     <?php endif; ?>
                                     <?php if ($media['image_c']): ?>
-                                        <img src="../uploads/events/<?= htmlspecialchars($media['image_c']) ?>" class="slide absolute inset-0 w-full h-full object-cover hidden" alt="Event Image C">
+                                        <img src="../uploads/events/<?= htmlspecialchars(basename($media['image_c'])) ?>" class="slide absolute inset-0 w-full h-full object-cover hidden" alt="Event Image C">
                                     <?php endif; ?>
                                     <?php if ($media['image_d']): ?>
-                                        <img src="../uploads/events/<?= htmlspecialchars($media['image_d']) ?>" class="slide absolute inset-0 w-full h-full object-cover hidden" alt="Event Image D">
+                                        <img src="../uploads/events/<?= htmlspecialchars(basename($media['image_d'])) ?>" class="slide absolute inset-0 w-full h-full object-cover hidden" alt="Event Image D">
                                     <?php endif; ?>
                                 </div>
                                 <button onclick="prevSlide()" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-3 rounded-full hover:bg-black/70">
@@ -213,7 +213,7 @@ $fundraises = $stmt->fetchAll();
                             <!-- Video -->
                             <div class="h-96 bg-gray-200 rounded-2xl overflow-hidden">
                                 <video controls class="w-full h-full">
-                                    <source src="../uploads/events/<?= htmlspecialchars($media['video_uploaded']) ?>" type="video/mp4">
+                                    <source src="../uploads/events/<?= htmlspecialchars(basename($media['video_uploaded'])) ?>" type="video/mp4">
                                     Your browser does not support the video tag.
                                 </video>
                             </div>
@@ -237,10 +237,10 @@ $fundraises = $stmt->fetchAll();
                             <div class="relative aspect-square bg-gray-200 rounded-2xl overflow-hidden cursor-pointer hover:opacity-90 transition"
                                  onclick="openModal('<?= htmlspecialchars($item['media_file']) ?>', '<?= htmlspecialchars($item['media_type']) ?>', '<?= htmlspecialchars($item['user_full_name']) ?>')">
                                 <?php if ($item['media_type'] === 'Photo'): ?>
-                                    <img src="../uploads/event_media/<?= htmlspecialchars($item['media_file']) ?>" class="w-full h-full object-cover" alt="Shared media">
+                                    <img src="../uploads/event_media/<?= htmlspecialchars(basename($item['media_file'])) ?>" class="w-full h-full object-cover" alt="Shared media">
                                 <?php elseif ($item['media_type'] === 'Video'): ?>
                                     <video class="w-full h-full object-cover">
-                                        <source src="../uploads/event_media/<?= htmlspecialchars($item['media_file']) ?>" type="video/mp4">
+                                        <source src="../uploads/event_media/<?= htmlspecialchars(basename($item['media_file'])) ?>" type="video/mp4">
                                     </video>
                                     <div class="absolute inset-0 flex items-center justify-center bg-black/30">
                                         <i class="fa fa-play-circle text-white text-4xl"></i>
@@ -324,7 +324,7 @@ $fundraises = $stmt->fetchAll();
                                     <div class="flex items-center gap-4">
                                         <div class="w-16 h-16 rounded-full overflow-hidden flex-shrink-0 bg-gray-200">
                                             <?php if ($sp['user_profile_picture']): ?>
-                                                <img src="../uploads/profiles/<?= htmlspecialchars($sp['user_profile_picture']) ?>" class="w-full h-full object-cover" alt="Profile">
+                                                <img src="../uploads/profiles/<?= htmlspecialchars(basename($sp['user_profile_picture'])) ?>" class="w-full h-full object-cover" alt="Profile">
                                             <?php else: ?>
                                                 <div class="w-full h-full flex items-center justify-center bg-indigo-100 text-indigo-600">
                                                     <i class="fa fa-user text-2xl"></i>
@@ -521,13 +521,17 @@ $fundraises = $stmt->fetchAll();
     let currentMediaFile = '';
     let currentMediaType = '';
 
+    function basename(path) {
+        return path.split(/[\\\/]/).pop();
+    }
+
     function openModal(mediaFile, mediaType, uploaderName) {
         currentMediaFile = mediaFile;
         currentMediaType = mediaType;
         document.getElementById('modalUploaderName').textContent = uploaderName;
 
         const modalContent = document.getElementById('modalContent');
-        const mediaPath = '../uploads/event_media/' + mediaFile;
+        const mediaPath = '../uploads/event_media/' + basename(mediaFile);
 
         if (mediaType === 'Photo') {
             modalContent.innerHTML = `<img src="${mediaPath}" class="w-full h-full object-contain max-h-screen" alt="Shared media">`;
@@ -551,7 +555,7 @@ $fundraises = $stmt->fetchAll();
     }
 
     function downloadMedia() {
-        const mediaPath = '../uploads/event_media/' + currentMediaFile;
+        const mediaPath = '../uploads/event_media/' + basename(currentMediaFile);
         const link = document.createElement('a');
         link.href = mediaPath;
         link.download = currentMediaFile;
@@ -566,7 +570,7 @@ $fundraises = $stmt->fetchAll();
         const profilePicPlaceholder = document.getElementById('attendeeProfilePicPlaceholder');
 
         if (profilePic && profilePicElement) {
-            profilePicElement.src = '../uploads/profiles/' + profilePic;
+            profilePicElement.src = '../uploads/profiles/' + basename(profilePic);
             profilePicElement.classList.remove('hidden');
             profilePicPlaceholder.classList.add('hidden');
         } else {

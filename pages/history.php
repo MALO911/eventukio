@@ -277,19 +277,6 @@ $userType = getUserType($user_id, $pdo);
 
 <!-- MAIN CONTENT -->
 <div class="max-w-7xl mx-auto px-4 py-6">
-    <!-- TABS -->
-    <div class="flex border-b mb-8 overflow-x-auto">
-        <button onclick="switchTab(0)" class="tab px-6 py-4 tab-active" id="tab0">
-            <i class="fa fa-clock"></i> Event Memories
-        </button>
-        <button onclick="switchTab(1)" class="tab px-6 py-4" id="tab1">
-            <i class="fa fa-boxes"></i> Assets
-        </button>
-        <button onclick="switchTab(2)" class="tab px-6 py-4" id="tab2">
-            <i class="fa fa-briefcase"></i> Services
-        </button>
-    </div>
-
     <!-- TAB 0: Event Memories -->
     <div id="panel0" class="tab-panel active">
         <?php if (empty($eventMemories)): ?>

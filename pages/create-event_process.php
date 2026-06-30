@@ -138,49 +138,96 @@ try {
             $video_path = null;
 
             for ($i = 0; $i < count($files['name']); $i++) {
-                if ($files['error'][$i] !== 0) continue;
+                if ($files['error'][$i] !== UPLOAD_ERR_OK) {
+                    error_log("Upload error for file {$files['name'][$i]}: code {$files['error'][$i]}");
+                    continue;
+                }
 
                 $ext = strtolower(pathinfo($files['name'][$i], PATHINFO_EXTENSION));
-                $new_name = 'EVENT-MEDIA-' . uniqid() . '.' . $ext;
+                $new_name = 'EVENT-MEDIA-' . uniqid() . '-' . time() . '.' . $ext;
                 $destination = $upload_dir . $new_name;
 
                 if (move_uploaded_file($files['tmp_name'][$i], $destination)) {
                     $db_path = 'uploads/events/' . $new_name;
+                    error_log("File uploaded successfully: $db_path");
 
-                    // Check if image
-                    if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'jfif', 'tiff', 'tif', 'svg'])) {
+                    // Determine file type using MIME content type (more reliable than extension alone)
+                    $mime_type = mime_content_type($destination);
+                    $is_image = (strpos($mime_type, 'image/') === 0);
+                    $is_video = (strpos($mime_type, 'video/') === 0);
+
+                    // Fallback: check extension if MIME detection fails or returns unexpected type
+                    if ($mime_type === false || (!$is_image && !$is_video)) {
+                        $is_image = in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff', 'tif', 'svg', 'avif', 'heic', 'heif', 'jfif', 'ico']);
+                        $is_video = in_array($ext, ['mp4', 'mkv', 'webm', 'avi', 'mov', 'flv', 'wmv', 'ogv']);
+                    }
+
+                    if ($is_image) {
                         if (count($image_paths) < 4) {
                             $image_paths[] = $db_path;
+                            error_log("Added image path: $db_path (total: " . count($image_paths) . ")");
                         }
-                    }
-                    // Check if video
-                    elseif (in_array($ext, ['mp4', 'mkv', 'webm', 'avi', 'mov'])) {
+                    } elseif ($is_video) {
                         $video_path = $db_path;
+                        error_log("Added video path: $db_path");
+                    } else {
+                        error_log("File {$files['name'][$i]} could not be classified as image or video (MIME: $mime_type, ext: $ext)");
                     }
+                } else {
+                    error_log("Failed to move uploaded file: {$files['tmp_name'][$i]} to $destination");
                 }
             }
+
+            error_log("Total images to save: " . count($image_paths));
+            error_log("Image paths: " . print_r($image_paths, true));
 
             // Save Images (up to 4) into image_a, image_b, image_c, image_d
             // Use empty string '' for unfilled slots to comply with NOT NULL columns
             if (!empty($image_paths)) {
                 $vals = array_pad($image_paths, 4, '');
-                $imgStmt = $pdo->prepare("
-                    INSERT INTO event_ad_images 
-                    (event_id, image_a, image_b, image_c, image_d, images_upload_date, images_upload_time) 
-                    VALUES (?, ?, ?, ?, ?, CURDATE(), CURTIME())
-                ");
-                $imgStmt->execute([$event_id, $vals[0], $vals[1], $vals[2], $vals[3]]);
+                try {
+                    // First, delete any existing record for this event to avoid duplicates
+                    $delStmt = $pdo->prepare("DELETE FROM event_ad_images WHERE event_id = ?");
+                    $delStmt->execute([$event_id]);
+                    
+                    $imgStmt = $pdo->prepare("
+                        INSERT INTO event_ad_images 
+                        (event_id, image_a, image_b, image_c, image_d, images_upload_date, images_upload_time) 
+                        VALUES (?, ?, ?, ?, ?, CURDATE(), CURTIME())
+                    ");
+                    $result = $imgStmt->execute([$event_id, $vals[0], $vals[1], $vals[2], $vals[3]]);
+                    error_log("Image insert result: " . ($result ? 'SUCCESS' : 'FAILED'));
+                    error_log("Inserted values: event_id=$event_id, image_a={$vals[0]}, image_b={$vals[1]}, image_c={$vals[2]}, image_d={$vals[3]}");
+                    
+                    if (!$result) {
+                        error_log("PDO Error Info: " . print_r($imgStmt->errorInfo(), true));
+                        throw new Exception("Failed to insert image paths into database");
+                    }
+                } catch (Exception $e) {
+                    error_log("Image insert error: " . $e->getMessage());
+                    throw $e;
+                }
+            } else {
+                error_log("No images to insert - image_paths array is empty");
             }
 
             // Save Video
             if ($video_path) {
-                $vidStmt = $pdo->prepare("
-                    INSERT INTO event_ad_video 
-                    (event_id, video_uploaded, video_upload_date, video_upload_time) 
-                    VALUES (?, ?, CURDATE(), CURTIME())
-                ");
-                $vidStmt->execute([$event_id, $video_path]);
+                try {
+                    $vidStmt = $pdo->prepare("
+                        INSERT INTO event_ad_video 
+                        (event_id, video_uploaded, video_upload_date, video_upload_time) 
+                        VALUES (?, ?, CURDATE(), CURTIME())
+                    ");
+                    $vidStmt->execute([$event_id, $video_path]);
+                    error_log("Video inserted successfully: $video_path");
+                } catch (Exception $e) {
+                    error_log("Video insert error: " . $e->getMessage());
+                    throw $e;
+                }
             }
+        } else {
+            error_log("No files uploaded or empty file array");
         }
 
         $pdo->commit();

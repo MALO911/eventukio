@@ -250,6 +250,46 @@ if (isset($_POST['upload_media']) && isset($_FILES['media_file']) && $_FILES['me
     }
 }
 
+// Handle AJAX search for event participants
+if (isset($_GET['ajax_search'])) {
+    header('Content-Type: application/json');
+    $search_term = clean($_GET['search_term'] ?? '');
+    
+    if (strlen($search_term) < 2) {
+        echo json_encode([]);
+        exit;
+    }
+    
+    // Search for active attendees and confirmed invitees
+    $stmt = $pdo->prepare("
+        SELECT DISTINCT u.user_id, u.user_full_name, u.user_profile_picture
+        FROM user_basic_info u
+        WHERE u.user_id != ?
+          AND u.user_validity = 'Verified'
+          AND (
+              -- Active attendees
+              u.user_id IN (
+                  SELECT participant_id FROM event_attendees 
+                  WHERE event_id = ? AND participation_status = 'Active'
+              )
+              OR
+              -- Confirmed invitees
+              u.user_id IN (
+                  SELECT user_id FROM event_invitees 
+                  WHERE event_id = ? AND attendance_status = 'Confirmed'
+              )
+          )
+          AND u.user_full_name LIKE ?
+        ORDER BY u.user_full_name
+        LIMIT 10
+    ");
+    $stmt->execute([$user_id, $event_id, $event_id, "%$search_term%"]);
+    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    echo json_encode($results);
+    exit;
+}
+
 // Handle AJAX actions (if needed) – but we can keep it simple with POST forms
 
 ?>
@@ -380,6 +420,8 @@ if (isset($_POST['upload_media']) && isset($_FILES['media_file']) && $_FILES['me
         <div class="mb-4">
             <input type="text" id="chatSearch" placeholder="Search participants..." class="glass w-full rounded-3xl px-6 py-3 text-lg focus:outline-none">
         </div>
+        <!-- Search Results Dropdown -->
+        <div id="searchResults" class="hidden glass rounded-3xl p-2 mb-4 max-h-64 overflow-y-auto"></div>
         <div id="chatList" class="space-y-3">
             <!-- Group Chat -->
             <?php if ($groupChatEnabled): ?>
@@ -407,7 +449,7 @@ if (isset($_POST['upload_media']) && isset($_FILES['media_file']) && $_FILES['me
                 <?php else: ?>
                     <?php foreach ($privateChats as $pc): ?>
                         <?php if ($pc['user']): ?>
-                            <a href="private-chat.php?event_id=<?= $event_id ?>&other_user_id=<?= $pc['other_user_id'] ?>" class="chat-card glass rounded-3xl p-4 flex items-center justify-between">
+                            <a href="private-chat.php?event_id=<?= $event_id ?>&receiver_id=<?= $pc['other_user_id'] ?>" class="chat-card glass rounded-3xl p-4 flex items-center justify-between">
                                 <div class="flex items-center gap-4">
                                     <img src="<?= htmlspecialchars(getProfilePictureUrl($pc['user']['user_profile_picture'] ?? '')) ?>" class="w-12 h-12 rounded-full object-cover">
                                     <div>
@@ -546,13 +588,53 @@ if (isset($_POST['upload_media']) && isset($_FILES['media_file']) && $_FILES['me
         });
     });
 
-    // ---------- Chat search (filter cards) ----------
+    // ---------- Chat search (AJAX search for event participants) ----------
+    let searchTimeout;
     document.getElementById('chatSearch')?.addEventListener('input', function() {
-        const term = this.value.toLowerCase();
-        document.querySelectorAll('#chatList > a, #chatList > div').forEach(el => {
-            const text = el.textContent.toLowerCase();
-            el.style.display = text.includes(term) ? 'flex' : 'none';
-        });
+        const term = this.value.trim();
+        const searchResults = document.getElementById('searchResults');
+        
+        clearTimeout(searchTimeout);
+        
+        if (term.length < 2) {
+            searchResults.classList.add('hidden');
+            searchResults.innerHTML = '';
+            return;
+        }
+        
+        searchTimeout = setTimeout(() => {
+            fetch(`event-page.php?id=<?= $event_id ?>&ajax_search=1&search_term=${encodeURIComponent(term)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length === 0) {
+                        searchResults.innerHTML = '<p class="text-gray-500 text-center py-2">No participants found.</p>';
+                    } else {
+                        searchResults.innerHTML = data.map(user => `
+                            <a href="private-chat.php?event_id=<?= $event_id ?>&receiver_id=${user.user_id}" 
+                               class="flex items-center gap-3 p-2 hover:bg-white/20 rounded-xl transition">
+                                <img src="${user.user_profile_picture ? user.user_profile_picture : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.user_full_name) + '&background=random'}" 
+                                     class="w-10 h-10 rounded-full object-cover">
+                                <span class="font-medium">${user.user_full_name}</span>
+                            </a>
+                        `).join('');
+                    }
+                    searchResults.classList.remove('hidden');
+                })
+                .catch(err => {
+                    console.error('Search error:', err);
+                    searchResults.innerHTML = '<p class="text-red-500 text-center py-2">Error searching participants.</p>';
+                    searchResults.classList.remove('hidden');
+                });
+        }, 300); // Debounce 300ms
+    });
+    
+    // Hide search results when clicking outside
+    document.addEventListener('click', function(e) {
+        const searchInput = document.getElementById('chatSearch');
+        const searchResults = document.getElementById('searchResults');
+        if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+            searchResults.classList.add('hidden');
+        }
     });
 
     // ---------- Gallery upload ----------

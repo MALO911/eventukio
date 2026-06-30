@@ -1,0 +1,29 @@
+# XAMPP / Development
+/vendor/
+/node_modules/
+.env
+.env.local
+*.log
+.DS_Store
+Thumbs.db
+
+# Database
+*.sql.bak
+eventukio.sql.bak
+
+# Uploads (optional - don't commit user files)
+uploads/profiles/*
+uploads/events/*
+uploads/event_media/*
+
+# Temporary
+*.tmp
+*.temp
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
+
+# PHP specific
+.phpunit.result.cache

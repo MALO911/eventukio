@@ -80,7 +80,7 @@ if (isset($_POST['choose_venue']) && isset($_POST['rental_id'])) {
         $updOther->execute([$eventId, $rental_id]);
 
         // Book selected rental
-        $updSel = $pdo->prepare("UPDATE event_asset_rentals SET renting_status = 'Booked' WHERE rental_id = ? AND event_id = ?");
+        $updSel = $pdo->prepare("UPDATE event_asset_rentals SET renting_status = 'Booked', lending_status = 'Booked and Approved' WHERE rental_id = ? AND event_id = ?");
         $updSel->execute([$rental_id, $eventId]);
 
         // Mark asset as booked
@@ -390,6 +390,47 @@ if (isset($_POST['add_fundraise']) && isset($_POST['event_id'])) {
     }
 }
 
+// Add guest invitation (Created Events step 5)
+if (isset($_POST['add_guest']) && isset($_POST['event_id'])) {
+    $event_id = (int)$_POST['event_id'];
+    $guest_name = clean($_POST['guest_name'] ?? '');
+    $position = clean($_POST['position'] ?? 'Normal Guest');
+    $invitation_category = clean($_POST['invitation_category'] ?? 'Paying');
+    $guest_user_id = clean($_POST['guest_user_id'] ?? '');
+
+    // Check if the user is authorized for this event
+    $auth_stmt = $pdo->prepare("SELECT host_id FROM event_basic_info WHERE event_id = ?");
+    $auth_stmt->execute([$event_id]);
+    $event_host = $auth_stmt->fetchColumn();
+
+    if ($event_host != $user_id) {
+        errorMsg("You are not authorized to invite guests for this event.");
+        redirect('pages/manage-event.php');
+    }
+
+    if (empty($guest_name) || empty($guest_user_id)) {
+        errorMsg("Please select a guest to invite.");
+        redirect('pages/manage-event.php');
+    }
+
+    try {
+        $invitee_id = generateInviteeId();
+
+        $stmt = $pdo->prepare("
+            INSERT INTO event_invitees
+                (invitee_id, event_id, user_id, attendance_status, invitation_badge, invitation_position, invitation_category)
+            VALUES (?, ?, ?, 'Pending', 'Normal', ?, ?)
+        ");
+        $stmt->execute([$invitee_id, $event_id, $guest_user_id, $position, $invitation_category]);
+
+        successMsg("Guest invited successfully!");
+        redirect('pages/manage-event.php?process=' . $event_id);
+    } catch (Exception $e) {
+        errorMsg("Failed to invite guest: " . $e->getMessage());
+        redirect('pages/manage-event.php');
+    }
+}
+
 // ---- Fetch events for the current user ----
 // Created events (status = 'Created')
 $stmt = $pdo->prepare("SELECT * FROM event_basic_info WHERE host_id = ? AND event_activeness = 'Created' ORDER BY event_date ASC, event_time ASC");
@@ -664,9 +705,10 @@ function getInvitedGuests($event_id, $pdo) {
                                     echo "<p>Owner: " . htmlspecialchars($asset['user_full_name']) . "</p>";
                                     echo "<p>Quality: " . htmlspecialchars($asset['asset_quality']) . "</p>";
                                     echo "<p>Price/unit: TZS " . number_format($asset['asset_price'], 2) . "</p>";
+                                    echo "<p>Available quantity: " . htmlspecialchars($asset['asset_quantity']) . "</p>";
                                     echo "<div class='flex gap-2 mt-2'>";
-                                    echo "<button onclick=\"alert('Place Order form')\" class='bg-indigo-600 text-white px-4 py-1 rounded-2xl text-sm'>Place Order</button>";
-                                    echo "<button onclick=\"alert('Negotiate form')\" class='bg-yellow-500 text-white px-4 py-1 rounded-2xl text-sm'>Negotiate</button>";
+                                    echo "<button onclick=\"openPlaceOrderModal('" . addslashes($asset['asset_id']) . "', " . $asset['asset_price'] . ", " . $asset['asset_quantity'] . ", '" . $processingEvent['event_id'] . "')\" class='bg-indigo-600 text-white px-4 py-1 rounded-2xl text-sm'>Place Order</button>";
+                                    echo "<button onclick=\"openNegotiateModal('" . addslashes($asset['asset_id']) . "', " . $asset['asset_price'] . ", " . $asset['asset_quantity'] . ", '" . $processingEvent['event_id'] . "')\" class='bg-yellow-500 text-white px-4 py-1 rounded-2xl text-sm'>Negotiate</button>";
                                     echo "</div></div>";
                                 }
                                 ?>
@@ -686,7 +728,7 @@ function getInvitedGuests($event_id, $pdo) {
                                     while ($guest = $stmt->fetch()) {
                                         echo "<div class='flex justify-between items-center glass p-2 rounded-xl'>";
                                         echo "<div><img src='".htmlspecialchars(getProfilePictureUrl($guest['user_profile_picture'] ?? ''))."' class='w-8 h-8 rounded-full inline mr-2'>".htmlspecialchars($guest['user_full_name'])." (".$guest['user_type'].")</div>";
-                                        echo "<button onclick=\"document.querySelector('input[name=guest_name]').value='".addslashes($guest['user_full_name'])."'\" class='bg-indigo-600 text-white px-3 py-1 rounded-xl text-sm'>Invite</button>";
+                                        echo "<button onclick=\"document.querySelector('input[name=guest_name]').value='".addslashes($guest['user_full_name'])."'; document.querySelector('input[name=guest_user_id]').value='".addslashes($guest['user_id'])."'\" class='bg-indigo-600 text-white px-3 py-1 rounded-xl text-sm'>Invite</button>";
                                         echo "</div>";
                                     }
                                     ?>
@@ -694,6 +736,8 @@ function getInvitedGuests($event_id, $pdo) {
                             </div>
                             <!-- Repeatable form -->
                             <form method="POST" action="?process=<?= $processingEvent['event_id'] ?>">
+                                <input type="hidden" name="event_id" value="<?= $processingEvent['event_id'] ?>">
+                                <input type="hidden" name="guest_user_id" id="guest_user_id">
                                 <div class="flex flex-wrap gap-4 items-end">
                                     <div>
                                         <label class="block text-sm">Name of guest</label>
@@ -711,7 +755,7 @@ function getInvitedGuests($event_id, $pdo) {
                                     </div>
                                     <div>
                                         <label class="block text-sm">Participation Category</label>
-                                        <select name="category" class="rounded-xl px-4 py-2 glass">
+                                        <select name="invitation_category" class="rounded-xl px-4 py-2 glass">
                                             <option value="Non-paying">Non-paying</option>
                                             <option value="Paying">Paying</option>
                                         </select>
@@ -1559,9 +1603,9 @@ function filterAssets() {
 }
 
 // ====================== PLACE ORDER MINI MODAL ======================
-function openPlaceOrderModal(assetId, price, availableQty) {
+function openPlaceOrderModal(assetId, price, availableQty, eventId) {
     document.getElementById('placeOrderAssetId').value = assetId;
-    document.getElementById('placeOrderEventId').value = rentAssetEventId;
+    document.getElementById('placeOrderEventId').value = eventId || rentAssetEventId;
     document.getElementById('placeOrderPrice').value = parseFloat(price).toFixed(2);
     document.getElementById('placeOrderAvailableQty').value = availableQty;
     document.getElementById('placeOrderRentQty').value = '';
@@ -1638,9 +1682,9 @@ function submitPlaceOrder() {
 }
 
 // ====================== NEGOTIATE MINI MODAL ======================
-function openNegotiateModal(assetId, price, availableQty) {
+function openNegotiateModal(assetId, price, availableQty, eventId) {
     document.getElementById('negotiateAssetId').value = assetId;
-    document.getElementById('negotiateEventId').value = rentAssetEventId;
+    document.getElementById('negotiateEventId').value = eventId || rentAssetEventId;
     document.getElementById('negotiateOriginalPrice').value = parseFloat(price).toFixed(2);
     document.getElementById('negotiateAvailableQty').value = availableQty;
     document.getElementById('negotiateNewPrice').value = '';
