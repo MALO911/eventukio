@@ -1,6 +1,14 @@
 <?php
 require_once '../config/config.php';
 require_once '../config/functions.php';
+require_once '../config/home_translations.php';
+
+// Handle language switch
+if (isset($_GET['set_language']) && in_array($_GET['set_language'], ['en', 'sw', 'suk'])) {
+    $_SESSION['homepage_language'] = $_GET['set_language'];
+    header('Location: home.php');
+    exit;
+}
 
 // Fetch public announced events sorted by date and time (latest to earliest) with location data
 $stmt = $pdo->prepare("SELECT e.*, u.user_full_name, u.user_profile_picture, 
@@ -127,20 +135,34 @@ function assetUrl($path, $fallback = '') {
                     <div class="relative w-full">
                         <input type="text" id="searchInput" 
                                class="w-full glass border border-white/30 rounded-2xl px-5 py-3 text-sm focus:outline-none focus:border-indigo-400"
-                               placeholder="Search events...">
+                               placeholder="<?= ht('search_placeholder') ?>">
                         <button onclick="searchEvents()" 
                                 class="absolute right-2 top-1/2 -translate-y-1/2 bg-indigo-600 text-white px-6 py-2 rounded-xl text-sm font-medium">
-                            Search
+                            <?= ht('search_button') ?>
                         </button>
                     </div>
                 </div>
 
                 <!-- Right side -->
                 <div class="flex items-center gap-3">
-                    <button onclick="toggleLanguage()" 
-                            class="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-white/50 rounded-2xl transition">
-                        <i class="fa fa-globe"></i> Badili Lugha
-                    </button>
+                    <div class="relative">
+                        <button onclick="toggleLanguageDropdown()" 
+                                class="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-white/50 rounded-2xl transition flex items-center gap-2">
+                            <i class="fa fa-globe"></i> <span id="currentLangLabel">Badili Lugha</span>
+                            <i class="fa fa-chevron-down text-xs"></i>
+                        </button>
+                        <div id="languageDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden z-50">
+                            <a href="?set_language=en" class="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition">
+                                <i class="fa fa-flag mr-2"></i> English
+                            </a>
+                            <a href="?set_language=sw" class="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition">
+                                <i class="fa fa-flag mr-2"></i> Kiswahili
+                            </a>
+                            <a href="?set_language=suk" class="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition">
+                                <i class="fa fa-flag mr-2"></i> Sukuma
+                            </a>
+                        </div>
+                    </div>
                     
                     <?php if (isLoggedIn()): ?>
                         <a href="profile.php" class="flex items-center gap-2">
@@ -150,11 +172,11 @@ function assetUrl($path, $fallback = '') {
                     <?php else: ?>
                         <a href="login.php" 
                            class="px-6 py-2.5 text-sm font-semibold text-indigo-700 hover:bg-white/70 rounded-2xl transition">
-                            Login
+                            <?= ht('login') ?>
                         </a>
                         <a href="register.php" 
                            class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-2xl transition">
-                            Register
+                            <?= ht('register') ?>
                         </a>
                     <?php endif; ?>
                 </div>
@@ -164,7 +186,7 @@ function assetUrl($path, $fallback = '') {
 
     <!-- MAIN CONTENT -->
     <main class="max-w-3xl mx-auto px-4 py-8">
-        <h2 class="text-4xl font-bold text-center text-gray-800 mb-10">Upcoming Events</h2>
+        <h2 class="text-4xl font-bold text-center text-gray-800 mb-10"><?= ht('upcoming_events') ?></h2>
 
         <!-- TAB 1: All Events -->
         <div id="allEventsTab" class="space-y-6">
@@ -182,7 +204,7 @@ function assetUrl($path, $fallback = '') {
                             <!-- User Name -->
                             <div>
                                 <p class="font-semibold text-gray-800"><?= htmlspecialchars($event['user_full_name']) ?></p>
-                                <p class="text-xs text-gray-500">Event Host</p>
+                                <p class="text-xs text-gray-500"><?= ht('event_host') ?></p>
                             </div>
                         </div>
 
@@ -195,24 +217,24 @@ function assetUrl($path, $fallback = '') {
                         <!-- Event Details Grid -->
                         <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
                             <div class="bg-indigo-50 rounded-2xl p-4">
-                                <p class="text-xs text-gray-600 mb-1"><i class="fa fa-calendar"></i> Date</p>
+                                <p class="text-xs text-gray-600 mb-1"><i class="fa fa-calendar"></i> <?= ht('date') ?></p>
                                 <p class="font-semibold text-sm"><?= date('d M Y', strtotime($event['event_date'])) ?></p>
                             </div>
                             <div class="bg-indigo-50 rounded-2xl p-4">
-                                <p class="text-xs text-gray-600 mb-1"><i class="fa fa-clock"></i> Time</p>
+                                <p class="text-xs text-gray-600 mb-1"><i class="fa fa-clock"></i> <?= ht('time') ?></p>
                                 <p class="font-semibold text-sm"><?= date('H:i', strtotime($event['event_time'])) ?></p>
                             </div>
                             <div class="bg-indigo-50 rounded-2xl p-4">
-                                <p class="text-xs text-gray-600 mb-1"><i class="fa fa-map-marker"></i> Location</p>
+                                <p class="text-xs text-gray-600 mb-1"><i class="fa fa-map-marker"></i> <?= ht('location') ?></p>
                                 <p class="font-semibold text-sm"><?= htmlspecialchars(($event['asset_district'] ?? 'N/A') . ', ' . ($event['asset_region'] ?? 'N/A')) ?></p>
                             </div>
                             <div class="bg-indigo-50 rounded-2xl p-4">
-                                <p class="text-xs text-gray-600 mb-1"><i class="fa fa-ticket"></i> Tickets</p>
-                                <p class="font-semibold text-sm text-indigo-700"><?= max(0, $ticketsAvailable) ?> Available</p>
+                                <p class="text-xs text-gray-600 mb-1"><i class="fa fa-ticket"></i> <?= ht('tickets') ?></p>
+                                <p class="font-semibold text-sm text-indigo-700"><?= max(0, $ticketsAvailable) ?> <?= ht('available') ?></p>
                             </div>
                             <div class="bg-indigo-50 rounded-2xl p-4">
-                                <p class="text-xs text-gray-600 mb-1"><i class="fa fa-users"></i> Attendees</p>
-                                <p class="font-semibold text-sm"><?= $event['event_tickets_sold'] ?> Booked</p>
+                                <p class="text-xs text-gray-600 mb-1"><i class="fa fa-users"></i> <?= ht('attendees') ?></p>
+                                <p class="font-semibold text-sm"><?= $event['event_tickets_sold'] ?> <?= ht('booked') ?></p>
                             </div>
                         </div>
                     </div>
@@ -250,18 +272,18 @@ function assetUrl($path, $fallback = '') {
                         <?php else: ?>
                             <div class="text-center">
                                 <i class="fa fa-image text-white text-4xl mb-4"></i>
-                                <p class="text-white text-sm">No media available</p>
+                                <p class="text-white text-sm"><?= ht('no_media') ?></p>
                             </div>
                         <?php endif; ?>
                     </div>
 
                     <!-- Event Description (if available) -->
-                    <p class="text-gray-600 text-sm mb-6 line-clamp-3"><?= htmlspecialchars($event['event_description'] ?? 'No description provided') ?></p>
+                    <p class="text-gray-600 text-sm mb-6 line-clamp-3"><?= htmlspecialchars($event['event_description'] ?? ht('no_description')) ?></p>
 
-                    <!-- Book Now Button (redirects to login) -->
+                    <!-- ${translations.book_now} Button (redirects to login) -->
                     <a href="login.php" 
                        class="w-full block bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-2xl font-semibold text-center transition">
-                        <i class="fa fa-ticket-alt"></i> Book Now
+                        <i class="fa fa-ticket-alt"></i> <?= ht('book_now') ?>
                     </a>
                 </div>
             <?php endforeach; ?>
@@ -269,8 +291,8 @@ function assetUrl($path, $fallback = '') {
             <?php if (empty($allEvents)): ?>
                 <div class="text-center py-16">
                     <i class="fa fa-calendar text-6xl text-gray-300 mb-4"></i>
-                    <p class="text-gray-500 text-lg">No announced events at the moment.</p>
-                    <p class="text-gray-400 text-sm mt-2">Check back soon for upcoming events!</p>
+                    <p class="text-gray-500 text-lg"><?= ht('no_events') ?></p>
+                    <p class="text-gray-400 text-sm mt-2"><?= ht('check_back_soon') ?></p>
                 </div>
             <?php endif; ?>
         </div>
@@ -289,7 +311,7 @@ function assetUrl($path, $fallback = '') {
                                  class="w-14 h-14 rounded-full object-cover border-2 border-indigo-400 flex-shrink-0" alt="Host">
                             <div>
                                 <p class="font-semibold text-gray-800"><?= htmlspecialchars($event['user_full_name']) ?></p>
-                                <p class="text-xs text-gray-500">Event Host</p>
+                                <p class="text-xs text-gray-500"><?= ht('event_host') ?></p>
                             </div>
                         </div>
 
@@ -298,32 +320,32 @@ function assetUrl($path, $fallback = '') {
 
                         <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
                             <div class="bg-indigo-50 rounded-2xl p-4">
-                                <p class="text-xs text-gray-600 mb-1"><i class="fa fa-calendar"></i> Date</p>
+                                <p class="text-xs text-gray-600 mb-1"><i class="fa fa-calendar"></i> <?= ht('date') ?></p>
                                 <p class="font-semibold text-sm"><?= date('d M Y', strtotime($event['event_date'])) ?></p>
                             </div>
                             <div class="bg-indigo-50 rounded-2xl p-4">
-                                <p class="text-xs text-gray-600 mb-1"><i class="fa fa-clock"></i> Time</p>
+                                <p class="text-xs text-gray-600 mb-1"><i class="fa fa-clock"></i> <?= ht('time') ?></p>
                                 <p class="font-semibold text-sm"><?= date('H:i', strtotime($event['event_time'])) ?></p>
                             </div>
                             <div class="bg-indigo-50 rounded-2xl p-4">
-                                <p class="text-xs text-gray-600 mb-1"><i class="fa fa-map-marker"></i> Location</p>
+                                <p class="text-xs text-gray-600 mb-1"><i class="fa fa-map-marker"></i> <?= ht('location') ?></p>
                                 <p class="font-semibold text-sm"><?= htmlspecialchars(($event['asset_district'] ?? 'N/A') . ', ' . ($event['asset_region'] ?? 'N/A')) ?></p>
                             </div>
                             <div class="bg-indigo-50 rounded-2xl p-4">
-                                <p class="text-xs text-gray-600 mb-1"><i class="fa fa-ticket"></i> Tickets</p>
-                                <p class="font-semibold text-sm text-indigo-700"><?= max(0, $ticketsAvailable) ?> Available</p>
+                                <p class="text-xs text-gray-600 mb-1"><i class="fa fa-ticket"></i> <?= ht('tickets') ?></p>
+                                <p class="font-semibold text-sm text-indigo-700"><?= max(0, $ticketsAvailable) ?> <?= ht('available') ?></p>
                             </div>
                             <div class="bg-indigo-50 rounded-2xl p-4">
-                                <p class="text-xs text-gray-600 mb-1"><i class="fa fa-users"></i> Attendees</p>
-                                <p class="font-semibold text-sm"><?= $event['event_tickets_sold'] ?> Booked</p>
+                                <p class="text-xs text-gray-600 mb-1"><i class="fa fa-users"></i> <?= ht('attendees') ?></p>
+                                <p class="font-semibold text-sm"><?= $event['event_tickets_sold'] ?> <?= ht('booked') ?></p>
                             </div>
                         </div>
 
-                    <p class="text-gray-600 text-sm mb-6 line-clamp-3"><?= htmlspecialchars($event['event_description'] ?? 'No description provided') ?></p>
+                    <p class="text-gray-600 text-sm mb-6 line-clamp-3"><?= htmlspecialchars($event['event_description'] ?? ht('no_description')) ?></p>
 
                     <a href="login.php" 
                        class="w-full block bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-2xl font-semibold text-center transition">
-                        <i class="fa fa-ticket-alt"></i> Book Now
+                        <i class="fa fa-ticket-alt"></i> <?= ht('book_now') ?>
                     </a>
                 </div>
             <?php endforeach; ?>
@@ -331,8 +353,8 @@ function assetUrl($path, $fallback = '') {
             <?php if (empty($yourAreaEvents)): ?>
                 <div class="text-center py-16">
                     <i class="fa fa-map-marker text-6xl text-gray-300 mb-4"></i>
-                    <p class="text-gray-500 text-lg">No events in your area at the moment.</p>
-                    <p class="text-gray-400 text-sm mt-2">Enable location access to see events near you.</p>
+                    <p class="text-gray-500 text-lg"><?= ht('no_area_events') ?></p>
+                    <p class="text-gray-400 text-sm mt-2"><?= ht('enable_location') ?></p>
                 </div>
             <?php endif; ?>
         </div>
@@ -343,16 +365,32 @@ function assetUrl($path, $fallback = '') {
         <div class="max-w-7xl mx-auto px-4 flex justify-center">
             <button onclick="switchTab('all')" id="allTabBtn" 
                     class="flex-1 max-w-xs px-6 py-4 text-center font-semibold text-indigo-700 border-b-4 border-indigo-700 bg-indigo-50/30 transition hover:bg-indigo-100/20">
-                <i class="fa fa-calendar mr-2"></i> All Events
+                <i class="fa fa-calendar mr-2"></i> <?= ht('all_events') ?>
             </button>
             <button onclick="switchTab('area')" id="areaTabBtn" 
                     class="flex-1 max-w-xs px-6 py-4 text-center font-semibold text-gray-600 border-b-4 border-transparent transition hover:text-indigo-700 hover:bg-white/10">
-                <i class="fa fa-map-marker mr-2"></i> Your Area
+                <i class="fa fa-map-marker mr-2"></i> <?= ht('your_area') ?>
             </button>
         </div>
     </footer>
 
     <script>
+        // Translations for JavaScript
+        const translations = {
+            event_host: <?= json_encode(ht('event_host')) ?>,
+            date: <?= json_encode(ht('date')) ?>,
+            time: <?= json_encode(ht('time')) ?>,
+            location: <?= json_encode(ht('location')) ?>,
+            tickets: <?= json_encode(ht('tickets')) ?>,
+            available: <?= json_encode(ht('available')) ?>,
+            attendees: <?= json_encode(ht('attendees')) ?>,
+            booked: <?= json_encode(ht('booked')) ?>,
+            media_preview_unavailable: <?= json_encode(ht('media_preview_unavailable')) ?>,
+            no_description: <?= json_encode(ht('no_description')) ?>,
+            book_now: <?= json_encode(ht('book_now')) ?>,
+            try_again: <?= json_encode(ht('try_again')) ?>
+        };
+
         let currentSlides = {};
         let currentTab = 'all';
         let userLocation = { region: null, district: null };
@@ -424,9 +462,21 @@ function assetUrl($path, $fallback = '') {
             });
         }
 
-        function toggleLanguage() {
-            alert("Language switching will be implemented soon!");
+        function toggleLanguageDropdown() {
+            const dropdown = document.getElementById('languageDropdown');
+            dropdown.classList.toggle('hidden');
         }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('languageDropdown');
+            const button = e.target.closest('button');
+            if (!button || !button.onclick || !button.onclick.toString().includes('toggleLanguageDropdown')) {
+                if (!dropdown.contains(e.target)) {
+                    dropdown.classList.add('hidden');
+                }
+            }
+        });
 
         function bookEvent(eventId) {
             window.location.href = "login.php";
@@ -438,7 +488,7 @@ function assetUrl($path, $fallback = '') {
         function getDeviceLocation() {
             if (!navigator.geolocation) {
                 console.warn('Geolocation not supported');
-                showAreaEventsError('Geolocation not supported on this device.');
+                showAreaEventsError(<?= json_encode(ht('geolocation_not_supported')) ?>);
                 return;
             }
 
@@ -449,7 +499,7 @@ function assetUrl($path, $fallback = '') {
                 },
                 (error) => {
                     console.warn('Geolocation error:', error.message);
-                    showAreaEventsError('Please enable location access to see events in your area.');
+                    showAreaEventsError(<?= json_encode(ht('enable_location_access')) ?>);
                 }
             );
         }
@@ -457,7 +507,7 @@ function assetUrl($path, $fallback = '') {
         // Reverse geocode coordinates to region and district using Nominatim (OpenStreetMap)
         function reverseGeocodeCoordinates(latitude, longitude) {
             const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`;
-            
+
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
@@ -465,13 +515,13 @@ function assetUrl($path, $fallback = '') {
                     const address = data.address || {};
                     userLocation.district = address.city || address.town || address.village || 'Unknown';
                     userLocation.region = address.state || address.county || address.region || 'Unknown';
-                    
+
                     // Fetch events for this region/district
                     fetchAreaEvents(userLocation.region, userLocation.district);
                 })
                 .catch(error => {
                     console.error('Reverse geocoding error:', error);
-                    showAreaEventsError('Could not determine your location. Please try again.');
+                    showAreaEventsError(<?= json_encode(ht('could_not_determine_location')) ?>);
                 });
         }
 
@@ -481,14 +531,14 @@ function assetUrl($path, $fallback = '') {
                 .then(response => response.json())
                 .then(events => {
                     if (events.length === 0) {
-                        showAreaEventsError(`No events found in ${userLocation.district}, ${userLocation.region}.`);
+                        showAreaEventsError(<?= json_encode(ht('no_events_found_location')) ?>);
                     } else {
                         displayAreaEvents(events);
                     }
                 })
                 .catch(error => {
                     console.error('Fetch error:', error);
-                    showAreaEventsError('Error loading events. Please try again.');
+                    showAreaEventsError(<?= json_encode(ht('error_loading_events')) ?>);
                 });
         }
 
@@ -515,22 +565,62 @@ function assetUrl($path, $fallback = '') {
                                  class="w-14 h-14 rounded-full object-cover border-2 border-indigo-400 flex-shrink-0" alt="Host">
                             <div>
                                 <p class="font-semibold text-gray-800">${escapeHtml(event.user_full_name)}</p>
-                                <p class="text-xs text-gray-500">Event Host</p>
+                                <p class="text-xs text-gray-500">${translations.event_host}</p>
                             </div>
                         </div>
                         <h3 class="font-bold text-2xl text-gray-800 mb-2">${escapeHtml(event.event_title)}</h3>
                         <p class="text-indigo-600 font-semibold text-sm mb-4">${escapeHtml(event.event_category)}</p>
                         <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
                             <div class="bg-indigo-50 rounded-2xl p-4">
-                                <p class="text-xs text-gray-600 mb-1"><i class="fa fa-calendar"></i> Date</p>
+                                <p class="text-xs text-gray-600 mb-1"><i class="fa fa-calendar"></i> ${translations.date}</p>
                                 <p class="font-semibold text-sm">${new Date(event.event_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
                             </div>
-                            <div class="bg-indigo-50 rounded-2xl p-4">\n                                <p class="text-xs text-gray-600 mb-1"><i class="fa fa-clock"></i> Time</p>\n                                <p class="font-semibold text-sm">${new Date('1970-01-01 ' + event.event_time).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false })}</p>\n                            </div>\n                            <div class="bg-indigo-50 rounded-2xl p-4">\n                                <p class="text-xs text-gray-600 mb-1"><i class="fa fa-map-marker"></i> Location</p>\n                                <p class="font-semibold text-sm">${escapeHtml((event.asset_district || 'N/A') + ', ' + (event.asset_region || 'N/A'))}</p>\n                            </div>\n                            <div class="bg-indigo-50 rounded-2xl p-4">\n                                <p class="text-xs text-gray-600 mb-1"><i class="fa fa-ticket"></i> Tickets</p>\n                                <p class="font-semibold text-sm text-indigo-700">${Math.max(0, ticketsAvailable)} Available</p>\n                            </div>\n                            <div class="bg-indigo-50 rounded-2xl p-4">\n                                <p class="text-xs text-gray-600 mb-1"><i class="fa fa-users"></i> Attendees</p>\n                                <p class="font-semibold text-sm">${event.event_tickets_sold} Booked</p>\n                            </div>\n                        </div>\n                    </div>\n                    <div class="mb-6 rounded-2xl overflow-hidden bg-gradient-to-br from-indigo-400 to-purple-600 h-64 flex items-center justify-center">\n                        <div class="text-center">\n                            <i class="fa fa-image text-white text-4xl mb-4"></i>\n                            <p class="text-white text-sm\">Media preview unavailable</p>\n                        </div>\n                    </div>\n                    <p class="text-gray-600 text-sm mb-6 line-clamp-3">${escapeHtml(event.event_description || 'No description provided')}</p>\n                    <a href=\"login.php\" class=\"w-full block bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-2xl font-semibold text-center transition\">\n                        <i class=\"fa fa-ticket-alt\"></i> Book Now\n                    </a>\n                `;\n                container.appendChild(eventCard);\n            });\n        }
+                            <div class="bg-indigo-50 rounded-2xl p-4">
+                                <p class="text-xs text-gray-600 mb-1"><i class="fa fa-clock"></i> ${translations.time}</p>
+                                <p class="font-semibold text-sm">${new Date('1970-01-01 ' + event.event_time).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false })}</p>
+                            </div>
+                            <div class="bg-indigo-50 rounded-2xl p-4">
+                                <p class="text-xs text-gray-600 mb-1"><i class="fa fa-map-marker"></i> ${translations.location}</p>
+                                <p class="font-semibold text-sm">${escapeHtml((event.asset_district || 'N/A') + ', ' + (event.asset_region || 'N/A'))}</p>
+                            </div>
+                            <div class="bg-indigo-50 rounded-2xl p-4">
+                                <p class="text-xs text-gray-600 mb-1"><i class="fa fa-ticket"></i> ${translations.tickets}</p>
+                                <p class="font-semibold text-sm text-indigo-700">${Math.max(0, ticketsAvailable)} ${translations.available}</p>
+                            </div>
+                            <div class="bg-indigo-50 rounded-2xl p-4">
+                                <p class="text-xs text-gray-600 mb-1"><i class="fa fa-users"></i> ${translations.attendees}</p>
+                                <p class="font-semibold text-sm">${event.event_tickets_sold} ${translations.booked}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-6 rounded-2xl overflow-hidden bg-gradient-to-br from-indigo-400 to-purple-600 h-64 flex items-center justify-center">
+                        <div class="text-center">
+                            <i class="fa fa-image text-white text-4xl mb-4"></i>
+                            <p class="text-white text-sm\">${translations.media_preview_unavailable}</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-6 line-clamp-3">${escapeHtml(event.event_description || '${translations.no_description}')}</p>
+                    <a href=\"login.php\" class=\"w-full block bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-2xl font-semibold text-center transition\">
+                        <i class=\"fa fa-ticket-alt\"></i> ${translations.book_now}
+                    </a>
+                `;
+                container.appendChild(eventCard);
+            });
+        }
 
         // Show error message for area events
         function showAreaEventsError(message) {
             const container = document.getElementById('yourAreaTab');
-            container.innerHTML = `\n                <div class="text-center py-16">\n                    <i class="fa fa-map-marker text-6xl text-gray-300 mb-4"></i>\n                    <p class="text-gray-500 text-lg">${escapeHtml(message)}</p>\n                    <button onclick="getDeviceLocation()" class="mt-4 px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-semibold transition">\n                        <i class="fa fa-location-arrow"></i> Try Again\n                    </button>\n                </div>\n            `;\n        }
+            container.innerHTML = `
+                <div class="text-center py-16">
+                    <i class="fa fa-map-marker text-6xl text-gray-300 mb-4"></i>
+                    <p class="text-gray-500 text-lg">${escapeHtml(message)}</p>
+                    <button onclick="getDeviceLocation()" class="mt-4 px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-semibold transition">
+                        <i class="fa fa-location-arrow"></i> ${translations.try_again}
+                    </button>
+                </div>
+            `;
+        }
 
         // Helper function to escape HTML
         function escapeHtml(text) {
@@ -541,3 +631,11 @@ function assetUrl($path, $fallback = '') {
     </script>
 </body>
 </html>
+
+
+
+
+
+
+
+

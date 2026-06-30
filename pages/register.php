@@ -180,6 +180,30 @@ if (isLoggedIn()) redirect('pages/events.php');
             if (!input) return;
             input.addEventListener('input', resetNidaValidation);
         });
+
+        // Auto-hyphenate NIDA number as user types
+        if (nidInput) {
+            nidInput.addEventListener('input', function(e) {
+                let value = this.value.replace(/\D/g, ''); // Remove all non-digits
+                let formatted = '';
+                
+                if (value.length > 0) {
+                    // First 8 digits (YYYYMMDD)
+                    formatted += value.substring(0, 8);
+                }
+                if (value.length > 8) {
+                    formatted += '-' + value.substring(8, 13);
+                }
+                if (value.length > 13) {
+                    formatted += '-' + value.substring(13, 18);
+                }
+                if (value.length > 18) {
+                    formatted += '-' + value.substring(18, 20);
+                }
+                
+                this.value = formatted;
+            });
+        }
     }
 
     function nextStep() {

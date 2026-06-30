@@ -17,11 +17,13 @@ try {
     $national_id  = clean($_POST['national_id'] ?? '');
     $recovery_phone = clean($_POST['recovery_phone'] ?? '');
 
-    // Build full_name
+    // Build full_name and set birthdate
+    $birth_date = null;
     if ($account_type === 'Personal') {
         $first_name = clean($_POST['first_name'] ?? '');
         $surname    = clean($_POST['surname'] ?? '');
         $full_name  = trim($first_name . ' ' . $surname);
+        $birth_date = clean($_POST['birth_date'] ?? '');
     } else {
         $full_name = clean($_POST['full_name'] ?? '');
     }
@@ -92,11 +94,11 @@ try {
 
     // INSERT USER
     $stmt = $pdo->prepare("INSERT INTO user_basic_info 
-        (user_id, user_full_name, user_type, user_email, user_phone_number, national_id, 
+        (user_id, user_full_name, user_type, user_email, user_phone_number, national_id, birthdate,
          recovery_phone_number, user_password, user_language, user_validity, registration_date_time)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Registered', NOW())");
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Registered', NOW())");
 
-    $stmt->execute([$user_id, $full_name, $account_type, $email, $phone, $national_id, $recovery_phone, $hashed, $language]);
+    $stmt->execute([$user_id, $full_name, $account_type, $email, $phone, $national_id, $birth_date ?? '', $recovery_phone, $hashed, $language]);
 
     // Create Wallet
     $account_id = "WALLET-" . strtoupper(bin2hex(random_bytes(6)));

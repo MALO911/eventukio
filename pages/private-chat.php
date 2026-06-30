@@ -119,12 +119,11 @@ if (isset($_POST['action'])) {
             echo json_encode(['success' => false, 'error' => 'Message cannot be empty.']);
             exit;
         }
-        // Encrypt before storing
-        $encrypted = encryptMessage($message);
+        // Store message as plain text (no encryption)
         $stmt = $pdo->prepare("INSERT INTO event_privatechat_messages 
                                (event_id, chat_id, sender_id, receiver_id, message_content, sender_participation_position, message_status)
                                VALUES (?, ?, ?, ?, ?, ?, 'Unread')");
-        $success = $stmt->execute([$event_id, $chat_id, $user_id, $receiver_id, $encrypted, $current_role]);
+        $success = $stmt->execute([$event_id, $chat_id, $user_id, $receiver_id, $message, $current_role]);
         if ($success) {
             // Return the newly created message data for immediate display
             $new_id = $pdo->lastInsertId();
@@ -152,7 +151,7 @@ if (isset($_POST['action'])) {
     }
 
     if ($_POST['action'] === 'fetch') {
-        // Fetch all messages for this chat, decrypt content
+        // Fetch all messages for this chat (plain text, no decryption)
         $stmt = $pdo->prepare("SELECT * FROM event_privatechat_messages 
                                WHERE event_id = ? AND chat_id = ? 
                                ORDER BY message_date ASC, message_time ASC");
@@ -160,8 +159,6 @@ if (isset($_POST['action'])) {
         $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $result = [];
         foreach ($messages as $msg) {
-            // Decrypt content for display
-            $msg['message_content'] = decryptMessage($msg['message_content']);
             // Add sender details
             $msg['sender_name'] = getUserFullName($pdo, $msg['sender_id']);
             $msg['sender_picture'] = getUserProfilePicture($pdo, $msg['sender_id']);
@@ -203,11 +200,21 @@ function getUserProfilePicture($pdo, $user_id) {
             border: 1px solid rgba(255,255,255,0.25);
         }
         .chat-container {
-            height: calc(100vh - 200px);
+            height: calc(100vh - 180px);
             overflow-y: auto;
             display: flex;
             flex-direction: column;
             padding: 1rem;
+        }
+        .input-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(16px);
+            padding: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.25);
         }
         .message {
             max-width: 75%;
@@ -279,13 +286,15 @@ function getUserProfilePicture($pdo, $user_id) {
     </div>
 </header>
 
-<div class="flex-1 max-w-4xl mx-auto w-full px-4 py-4 flex flex-col">
+<div class="flex-1 max-w-4xl mx-auto w-full px-4 py-4 flex flex-col pb-32">
     <div id="chatContainer" class="chat-container glass rounded-3xl flex-1 overflow-y-auto flex flex-col gap-2">
         <!-- Messages will be loaded here dynamically -->
     </div>
+</div>
 
-    <!-- Message Input -->
-    <div class="glass mt-4 rounded-3xl p-4 flex gap-3">
+<!-- Message Input (Sticky at bottom) -->
+<div class="input-container">
+    <div class="max-w-4xl mx-auto flex gap-3">
         <input type="text" id="messageInput"
                class="flex-1 glass rounded-3xl px-6 py-3 focus:outline-none text-base bg-white/30"
                placeholder="Type your message..."

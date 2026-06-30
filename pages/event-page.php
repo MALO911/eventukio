@@ -644,11 +644,90 @@ if (isset($_GET['ajax_search'])) {
         document.getElementById('uploadOptions').classList.toggle('show', uploadVisible);
     }
 
-    // Camera capture (use input with capture attribute)
-    function captureFromCamera() {
-        const input = document.getElementById('mediaFileInput');
-        input.setAttribute('capture', 'environment'); // or 'user'
-        input.click();
+    // Camera capture using MediaDevices API
+    async function captureFromCamera() {
+        try {
+            // Check if MediaDevices API is supported
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert('Camera access is not supported in this browser. Please use a modern browser or upload from storage.');
+                return;
+            }
+
+            // Request camera access
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: 'environment' }, // Use back camera on mobile
+                audio: false 
+            });
+
+            // Create video element to show camera feed
+            const video = document.createElement('video');
+            video.srcObject = stream;
+            video.autoplay = true;
+            video.style.width = '100%';
+            video.style.maxWidth = '500px';
+            video.style.borderRadius = '1rem';
+
+            // Create modal for camera capture
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/80';
+            modal.innerHTML = `
+                <div class="bg-white rounded-3xl p-6 max-w-lg w-full mx-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold">Capture Photo</h3>
+                        <button onclick="this.closest('.fixed').remove()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fa fa-times text-2xl"></i>
+                        </button>
+                    </div>
+                    <div id="cameraPreview" class="mb-4"></div>
+                    <div class="flex gap-3 justify-center">
+                        <button id="captureBtn" class="bg-indigo-600 text-white px-6 py-3 rounded-2xl">Capture</button>
+                        <button id="cancelBtn" class="bg-gray-300 text-gray-800 px-6 py-3 rounded-2xl">Cancel</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            document.getElementById('cameraPreview').appendChild(video);
+
+            // Capture photo
+            document.getElementById('captureBtn').onclick = function() {
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0);
+
+                // Stop camera stream
+                stream.getTracks().forEach(track => track.stop());
+
+                // Convert to blob and upload
+                canvas.toBlob(blob => {
+                    const file = new File([blob], 'camera-capture.jpg', { type: 'image/jpeg' });
+                    
+                    // Create a new FileList-like object
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    
+                    const input = document.getElementById('mediaFileInput');
+                    input.files = dataTransfer.files;
+                    
+                    // Trigger upload
+                    document.getElementById('uploadSubmit').click();
+                    
+                    // Close modal
+                    modal.remove();
+                    toggleUploadOptions();
+                }, 'image/jpeg');
+            };
+
+            // Cancel capture
+            document.getElementById('cancelBtn').onclick = function() {
+                stream.getTracks().forEach(track => track.stop());
+                modal.remove();
+            };
+
+        } catch (err) {
+            console.error('Camera error:', err);
+            alert('Could not access camera: ' + err.message + '. Please check camera permissions or upload from storage.');
+        }
     }
 
     // Auto-submit when file selected
