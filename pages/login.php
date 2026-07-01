@@ -5,13 +5,9 @@ require_once '../config/functions.php';
 // Handle language switch - must be AFTER config.php loads but BEFORE any output
 if (isset($_GET['set_language']) && in_array($_GET['set_language'], ['en', 'sw', 'suk'])) {
     $_SESSION['user_language'] = $_GET['set_language'];
-    error_log("Language set to: " . $_GET['set_language']);
-    error_log("Session language after set: " . ($_SESSION['user_language'] ?? 'not set'));
     header('Location: login.php');
     exit;
 }
-
-error_log("Current session language on page load: " . ($_SESSION['user_language'] ?? 'not set'));
 
 // Redirect if already logged in
 if (isLoggedIn()) {

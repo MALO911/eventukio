@@ -188,7 +188,7 @@ function assetUrl($path, $fallback = '') {
                     <!-- Notifications Button -->
                     <?php if ($isVerified): ?>
                         <a href="notifications.php" class="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-white/50 rounded-2xl transition relative">
-                            <i class="fa fa-bell"></i> Notifications
+                            <i class="fa fa-bell"></i> <?= t('notifications') ?>
                             <?php if ($notificationCount > 0): ?>
                                 <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
                                     <?= $notificationCount > 9 ? '9+' : $notificationCount ?>
@@ -196,9 +196,9 @@ function assetUrl($path, $fallback = '') {
                             <?php endif; ?>
                         </a>
                     <?php else: ?>
-                        <button onclick="showVerifyModal('Please verify your account to access Notifications')"
+                        <button onclick="showVerifyModal('<?= t('verify_account') ?>')"
                                 class="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-white/50 rounded-2xl transition relative">
-                            <i class="fa fa-bell"></i> Notifications
+                            <i class="fa fa-bell"></i> <?= t('notifications') ?>
                             <?php if ($notificationCount > 0): ?>
                                 <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
                                     <?= $notificationCount > 9 ? '9+' : $notificationCount ?>
@@ -208,9 +208,9 @@ function assetUrl($path, $fallback = '') {
                     <?php endif; ?>
 
                     <!-- Logout Button -->
-                    <a href="../logout.php" 
+                    <a href="../logout.php"
                        class="px-6 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 rounded-2xl transition">
-                        Logout
+                        <?= t('logout') ?>
                     </a>
                 </div>
             </div>
@@ -220,12 +220,12 @@ function assetUrl($path, $fallback = '') {
                 <!-- Search Bar (Center) -->
                 <div class="hidden md:flex flex-1 max-w-2xl mx-auto">
                     <div class="relative w-full">
-                        <input type="text" id="headerSearch" 
+                        <input type="text" id="headerSearch"
                                class="w-full glass border border-white/30 rounded-2xl px-5 py-3 text-sm focus:outline-none focus:border-indigo-400"
-                               placeholder="Search events by title or category...">
-                        <button onclick="searchEventsHeader()" 
+                               placeholder="<?= t('search_placeholder') ?>">
+                        <button onclick="searchEventsHeader()"
                                 class="absolute right-2 top-1/2 -translate-y-1/2 bg-indigo-600 text-white px-6 py-2 rounded-xl text-sm font-medium hover:bg-indigo-700">
-                            Search
+                            <?= t('search') ?>
                         </button>
                     </div>
                 </div>
@@ -235,7 +235,7 @@ function assetUrl($path, $fallback = '') {
                     <!-- My Events Dropdown -->
                     <div class="relative group">
                         <button class="px-6 py-2.5 text-sm font-semibold text-indigo-700 hover:bg-white/70 rounded-2xl transition flex items-center gap-2">
-                            <i class="fa fa-tasks"></i> My Events
+                            <i class="fa fa-tasks"></i> <?= t('my_events') ?>
                             <i class="fa fa-chevron-down text-xs"></i>
                         </button>
 
@@ -243,17 +243,17 @@ function assetUrl($path, $fallback = '') {
                         <div class="absolute right-0 mt-1 w-48 glass rounded-2xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-white/30">
                             <?php if ($isVerified): ?>
                                 <a href="create-event.php" class="block px-6 py-3 text-sm text-gray-700 hover:bg-white/50 rounded-t-2xl">
-                                    <i class="fa fa-plus"></i> Create Event
+                                    <i class="fa fa-plus"></i> <?= t('create_event') ?>
                                 </a>
                                 <a href="manage-event.php" class="block px-6 py-3 text-sm text-gray-700 hover:bg-white/50">
-                                    <i class="fa fa-edit"></i> Manage Event
+                                    <i class="fa fa-edit"></i> <?= t('manage_event') ?>
                                 </a>
                                 <a href="attend-events.php" class="block px-6 py-3 text-sm text-gray-700 hover:bg-white/50 rounded-b-2xl">
-                                    <i class="fa fa-calendar-check"></i> Attend Events
+                                    <i class="fa fa-calendar-check"></i> <?= t('attend_events') ?>
                                 </a>
                             <?php else: ?>
                                 <div class="px-6 py-4">
-                                    <p class="text-sm text-red-600 font-medium mb-3">Please verify your account to access this page</p>
+                                    <p class="text-sm text-red-600 font-medium mb-3"><?= t('verify_account_message') ?></p>
                                     <a href="update-profile.php" class="block px-4 py-2 bg-indigo-600 text-white text-sm text-center rounded-xl hover:bg-indigo-700">
                                         Verify
                                     </a>
@@ -263,9 +263,9 @@ function assetUrl($path, $fallback = '') {
                     </div>
 
                     <!-- Account Button -->
-                    <a href="account.php" 
+                    <a href="account.php"
                        class="px-6 py-2.5 text-sm font-semibold text-indigo-700 hover:bg-white/70 rounded-2xl transition flex items-center gap-2">
-                        <i class="fa fa-user"></i> Account
+                        <i class="fa fa-user"></i> <?= t('account') ?>
                     </a>
                 </div>
             </div>
@@ -273,12 +273,12 @@ function assetUrl($path, $fallback = '') {
             <!-- Mobile Search Bar (shown on smaller screens) -->
             <div class="md:hidden pb-4">
                 <div class="relative w-full">
-                    <input type="text" id="mobileSearch" 
+                    <input type="text" id="mobileSearch"
                            class="w-full glass border border-white/30 rounded-2xl px-5 py-3 text-sm focus:outline-none focus:border-indigo-400"
-                           placeholder="Search events...">
-                    <button onclick="searchEventsHeader()" 
+                           placeholder="<?= t('search_placeholder') ?>">
+                    <button onclick="searchEventsHeader()"
                             class="absolute right-2 top-1/2 -translate-y-1/2 bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs font-medium hover:bg-indigo-700">
-                        Search
+                        <?= t('search') ?>
                     </button>
                 </div>
             </div>
@@ -288,14 +288,14 @@ function assetUrl($path, $fallback = '') {
     <!-- Verify Modal -->
     <div id="verifyModal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
         <div class="glass rounded-3xl p-8 max-w-sm w-full mx-4 border border-white/30">
-            <h3 class="text-xl font-semibold text-indigo-700 mb-4">Account Verification Required</h3>
+            <h3 class="text-xl font-semibold text-indigo-700 mb-4"><?= t('account_verification_required') ?></h3>
             <p id="verifyMessage" class="text-gray-700 mb-6"></p>
             <div class="flex gap-4">
                 <a href="update-profile.php" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-2xl text-center font-medium">
-                    Verify
+                    <?= t('verify') ?>
                 </a>
                 <button onclick="closeVerifyModal()" class="flex-1 bg-white/20 hover:bg-white/30 text-gray-700 py-3 rounded-2xl font-medium">
-                    Cancel
+                    <?= t('cancel') ?>
                 </button>
             </div>
         </div>
@@ -356,7 +356,7 @@ function assetUrl($path, $fallback = '') {
                                 <!-- User Name -->
                                 <div>
                                     <p class="font-semibold text-gray-800"><?= htmlspecialchars($event['user_full_name']) ?></p>
-                                    <p class="text-xs text-gray-500">Event Host</p>
+                                    <p class="text-xs text-gray-500"><?= t('event_host') ?></p>
                                 </div>
                             </div>
 
@@ -369,24 +369,24 @@ function assetUrl($path, $fallback = '') {
                             <!-- Event Details Grid -->
                             <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
                                 <div class="bg-indigo-50 rounded-2xl p-4">
-                                    <p class="text-xs text-gray-600 mb-1"><i class="fa fa-calendar"></i> Date</p>
+                                    <p class="text-xs text-gray-600 mb-1"><i class="fa fa-calendar"></i> <?= t('date') ?></p>
                                     <p class="font-semibold text-sm"><?= date('d M Y', strtotime($event['event_date'])) ?></p>
                                 </div>
                                 <div class="bg-indigo-50 rounded-2xl p-4">
-                                    <p class="text-xs text-gray-600 mb-1"><i class="fa fa-clock"></i> Time</p>
+                                    <p class="text-xs text-gray-600 mb-1"><i class="fa fa-clock"></i> <?= t('time') ?></p>
                                     <p class="font-semibold text-sm"><?= date('H:i', strtotime($event['event_time'])) ?></p>
                                 </div>
                                 <div class="bg-indigo-50 rounded-2xl p-4">
-                                    <p class="text-xs text-gray-600 mb-1"><i class="fa fa-map-marker"></i> Location</p>
+                                    <p class="text-xs text-gray-600 mb-1"><i class="fa fa-map-marker"></i> <?= t('location') ?></p>
                                     <p class="font-semibold text-sm"><?= htmlspecialchars(($event['asset_district'] ?? 'N/A') . ', ' . ($event['asset_region'] ?? 'N/A')) ?></p>
                                 </div>
                                 <div class="bg-indigo-50 rounded-2xl p-4">
-                                    <p class="text-xs text-gray-600 mb-1"><i class="fa fa-ticket"></i> Tickets</p>
-                                    <p class="font-semibold text-sm text-indigo-700"><?= max(0, $ticketsAvailable) ?> Available</p>
+                                    <p class="text-xs text-gray-600 mb-1"><i class="fa fa-ticket"></i> <?= t('tickets') ?></p>
+                                    <p class="font-semibold text-sm text-indigo-700"><?= max(0, $ticketsAvailable) ?> <?= t('available') ?></p>
                                 </div>
                                 <div class="bg-indigo-50 rounded-2xl p-4">
                                     <p class="text-xs text-gray-600 mb-1"><i class="fa fa-users"></i> Attendees</p>
-                                    <p class="font-semibold text-sm"><?= $event['event_tickets_sold'] ?> Booked</p>
+                                    <p class="font-semibold text-sm"><?= $event['event_tickets_sold'] ?> <?= t('booked') ?></p>
                                 </div>
                             </div>
                         </div>
@@ -424,24 +424,24 @@ function assetUrl($path, $fallback = '') {
                             <?php else: ?>
                                 <div class="text-center">
                                     <i class="fa fa-image text-white text-4xl mb-4"></i>
-                                    <p class="text-white text-sm">No media available</p>
+                                    <p class="text-white text-sm"><?= t('no_media_available') ?></p>
                                 </div>
                             <?php endif; ?>
                         </div>
 
                         <!-- Event Description (if available) -->
-                        <p class="text-gray-600 text-sm mb-6 line-clamp-3"><?= htmlspecialchars($event['event_description'] ?? 'No description provided') ?></p>
+                        <p class="text-gray-600 text-sm mb-6 line-clamp-3"><?= htmlspecialchars($event['event_description'] ?? t('no_description')) ?></p>
 
                         <!-- Book Now Button -->
                         <?php if ($isVerified): ?>
-                            <a href="ticket_booking.php?event_id=<?= $event['event_id'] ?>" 
+                            <a href="ticket_booking.php?event_id=<?= $event['event_id'] ?>"
                                class="w-full inline-block bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-700 hover:to-indigo-600 text-white py-3 px-6 rounded-2xl font-semibold text-center transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 transform">
-                                <i class="fa fa-ticket-alt mr-2"></i>Book Now
+                                <i class="fa fa-ticket-alt mr-2"></i><?= t('book_now') ?>
                             </a>
                         <?php else: ?>
-                            <button onclick="showVerifyModal('Please verify your account to book tickets for this event')" 
+                            <button onclick="showVerifyModal('<?= t('verify_to_book') ?>')"
                                     class="w-full bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-700 hover:to-indigo-600 text-white py-3 px-6 rounded-2xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 transform cursor-pointer">
-                                <i class="fa fa-ticket-alt mr-2"></i>Book Now
+                                <i class="fa fa-ticket-alt mr-2"></i><?= t('book_now') ?>
                             </button>
                         <?php endif; ?>
                     </div>
@@ -450,7 +450,7 @@ function assetUrl($path, $fallback = '') {
                 <?php if (empty($allEvents)): ?>
                     <div class="text-center py-16">
                         <i class="fa fa-calendar text-6xl text-gray-300 mb-4"></i>
-                        <p class="text-gray-500 text-lg">No announced events at the moment.</p>
+                        <p class="text-gray-500 text-lg"><?= t('no_events') ?></p>
                     </div>
                 <?php endif; ?>
             </div>
@@ -469,7 +469,7 @@ function assetUrl($path, $fallback = '') {
                                      class="w-14 h-14 rounded-full object-cover border-2 border-indigo-400 flex-shrink-0" alt="Host">
                                 <div>
                                     <p class="font-semibold text-gray-800"><?= htmlspecialchars($event['user_full_name']) ?></p>
-                                    <p class="text-xs text-gray-500">Event Host</p>
+                                    <p class="text-xs text-gray-500"><?= t('event_host') ?></p>
                                 </div>
                             </div>
 
@@ -478,57 +478,77 @@ function assetUrl($path, $fallback = '') {
 
                             <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
                                 <div class="bg-indigo-50 rounded-2xl p-4">
-                                    <p class="text-xs text-gray-600 mb-1"><i class="fa fa-calendar"></i> Date</p>
+                                    <p class="text-xs text-gray-600 mb-1"><i class="fa fa-calendar"></i> <?= t('date') ?></p>
                                     <p class="font-semibold text-sm"><?= date('d M Y', strtotime($event['event_date'])) ?></p>
                                 </div>
                                 <div class="bg-indigo-50 rounded-2xl p-4">
-                                    <p class="text-xs text-gray-600 mb-1"><i class="fa fa-clock"></i> Time</p>
+                                    <p class="text-xs text-gray-600 mb-1"><i class="fa fa-clock"></i> <?= t('time') ?></p>
                                     <p class="font-semibold text-sm"><?= date('H:i', strtotime($event['event_time'])) ?></p>
                                 </div>
                                 <div class="bg-indigo-50 rounded-2xl p-4">
-                                    <p class="text-xs text-gray-600 mb-1"><i class="fa fa-map-marker"></i> Location</p>
+                                    <p class="text-xs text-gray-600 mb-1"><i class="fa fa-map-marker"></i> <?= t('location') ?></p>
                                     <p class="font-semibold text-sm"><?= htmlspecialchars(($event['asset_district'] ?? 'N/A') . ', ' . ($event['asset_region'] ?? 'N/A')) ?></p>
                                 </div>
                                 <div class="bg-indigo-50 rounded-2xl p-4">
-                                    <p class="text-xs text-gray-600 mb-1"><i class="fa fa-ticket"></i> Tickets</p>
-                                    <p class="font-semibold text-sm text-indigo-700"><?= max(0, $ticketsAvailable) ?> Available</p>
+                                    <p class="text-xs text-gray-600 mb-1"><i class="fa fa-ticket"></i> <?= t('tickets') ?></p>
+                                    <p class="font-semibold text-sm text-indigo-700"><?= max(0, $ticketsAvailable) ?> <?= t('available') ?></p>
                                 </div>
                                 <div class="bg-indigo-50 rounded-2xl p-4">
                                     <p class="text-xs text-gray-600 mb-1"><i class="fa fa-users"></i> Attendees</p>
-                                    <p class="font-semibold text-sm"><?= $event['event_tickets_sold'] ?> Booked</p>
+                                    <p class="font-semibold text-sm"><?= $event['event_tickets_sold'] ?> <?= t('booked') ?></p>
                                 </div>
                             </div>
                         </div>
 
+                        <!-- Media Section -->
                         <div class="mb-6 rounded-2xl overflow-hidden bg-gradient-to-br from-indigo-400 to-purple-600 h-64 flex items-center justify-center">
                             <?php if ($event['event_ad_media'] === 'Image' && $media): ?>
+                                <!-- Image Slideshow -->
                                 <div class="relative w-full h-full">
-                                    <img id="slide-<?= $event['event_id'] ?>-0" src="<?= htmlspecialchars($media['image_a'] ?? '') ?>" 
+                                    <img id="slide-<?= $event['event_id'] ?>-0" src="<?= htmlspecialchars(assetUrl($media['image_a'] ?? '')) ?>" 
                                          class="w-full h-full object-cover" alt="Event Image">
+                                    <?php if ($media['image_b'] || $media['image_c'] || $media['image_d']): ?>
+                                        <button onclick="prevSlide(<?= $event['event_id'] ?>)" class="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full">
+                                            <i class="fa fa-chevron-left"></i>
+                                        </button>
+                                        <button onclick="nextSlide(<?= $event['event_id'] ?>)" class="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full">
+                                            <i class="fa fa-chevron-right"></i>
+                                        </button>
+                                        <div id="slides-data-<?= $event['event_id'] ?>" class="hidden">
+                                            <?php 
+                                                $slides = array_filter([$media['image_a'], $media['image_b'], $media['image_c'], $media['image_d']]);
+                                                echo json_encode(array_values(array_map(function($img) {
+                                                    return assetUrl($img, '');
+                                                }, $slides)));
+                                            ?>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
                             <?php elseif ($event['event_ad_media'] === 'Video' && $media): ?>
+                                <!-- Video -->
                                 <video width="100%" height="100%" controls class="w-full h-full object-cover">
-                                    <source src="<?= htmlspecialchars($media['video_uploaded'] ?? '') ?>" type="video/mp4">
+                                    <source src="<?= htmlspecialchars(assetUrl($media['video_uploaded'] ?? '')) ?>" type="video/mp4">
+                                    Your browser does not support the video tag.
                                 </video>
                             <?php else: ?>
                                 <div class="text-center">
                                     <i class="fa fa-image text-white text-4xl mb-4"></i>
-                                    <p class="text-white text-sm">No media available</p>
+                                    <p class="text-white text-sm"><?= t('no_media_available') ?></p>
                                 </div>
                             <?php endif; ?>
                         </div>
 
-                        <p class="text-gray-600 text-sm mb-6 line-clamp-3"><?= htmlspecialchars($event['event_description'] ?? 'No description provided') ?></p>
+                        <p class="text-gray-600 text-sm mb-6 line-clamp-3"><?= htmlspecialchars($event['event_description'] ?? t('no_description')) ?></p>
 
                         <?php if ($isVerified): ?>
                             <a href="ticket_booking.php?event_id=<?= $event['event_id'] ?>" 
                                class="w-full inline-block bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-700 hover:to-indigo-600 text-white py-3 px-6 rounded-2xl font-semibold text-center transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 transform">
-                                <i class="fa fa-ticket-alt mr-2"></i>Book Now
+                                <i class="fa fa-ticket-alt mr-2"></i><?= t('book_now') ?>
                             </a>
                         <?php else: ?>
                             <button onclick="showVerifyModal('Please verify your account to book tickets for this event')" 
                                     class="w-full bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-700 hover:to-indigo-600 text-white py-3 px-6 rounded-2xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 transform cursor-pointer">
-                                <i class="fa fa-ticket-alt mr-2"></i>Book Now
+                                <i class="fa fa-ticket-alt mr-2"></i><?= t('book_now') ?>
                             </button>
                         <?php endif; ?>
                     </div>
@@ -537,8 +557,8 @@ function assetUrl($path, $fallback = '') {
                 <?php if (empty($yourAreaEvents)): ?>
                     <div class="text-center py-16">
                         <i class="fa fa-map-marker text-6xl text-gray-300 mb-4"></i>
-                        <p class="text-gray-500 text-lg">No events in your area at the moment.</p>
-                        <p class="text-gray-400 text-sm mt-2">Enable location access to see events near you.</p>
+                        <p class="text-gray-500 text-lg"><?= t('no_events_area') ?></p>
+                        <p class="text-gray-400 text-sm mt-2"><?= t('enable_location') ?></p>
                     </div>
                 <?php endif; ?>
             </div>
@@ -557,7 +577,7 @@ function assetUrl($path, $fallback = '') {
                                      class="w-14 h-14 rounded-full object-cover border-2 border-indigo-400 flex-shrink-0" alt="Host">
                                 <div>
                                     <p class="font-semibold text-gray-800"><?= htmlspecialchars($event['user_full_name']) ?></p>
-                                    <p class="text-xs text-gray-500">Event Host</p>
+                                    <p class="text-xs text-gray-500"><?= t('event_host') ?></p>
                                 </div>
                             </div>
 
@@ -566,57 +586,77 @@ function assetUrl($path, $fallback = '') {
 
                             <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
                                 <div class="bg-indigo-50 rounded-2xl p-4">
-                                    <p class="text-xs text-gray-600 mb-1"><i class="fa fa-calendar"></i> Date</p>
+                                    <p class="text-xs text-gray-600 mb-1"><i class="fa fa-calendar"></i> <?= t('date') ?></p>
                                     <p class="font-semibold text-sm"><?= date('d M Y', strtotime($event['event_date'])) ?></p>
                                 </div>
                                 <div class="bg-indigo-50 rounded-2xl p-4">
-                                    <p class="text-xs text-gray-600 mb-1"><i class="fa fa-clock"></i> Time</p>
+                                    <p class="text-xs text-gray-600 mb-1"><i class="fa fa-clock"></i> <?= t('time') ?></p>
                                     <p class="font-semibold text-sm"><?= date('H:i', strtotime($event['event_time'])) ?></p>
                                 </div>
                                 <div class="bg-indigo-50 rounded-2xl p-4">
-                                    <p class="text-xs text-gray-600 mb-1"><i class="fa fa-map-marker"></i> Location</p>
+                                    <p class="text-xs text-gray-600 mb-1"><i class="fa fa-map-marker"></i> <?= t('location') ?></p>
                                     <p class="font-semibold text-sm"><?= htmlspecialchars(($event['asset_district'] ?? 'N/A') . ', ' . ($event['asset_region'] ?? 'N/A')) ?></p>
                                 </div>
                                 <div class="bg-indigo-50 rounded-2xl p-4">
-                                    <p class="text-xs text-gray-600 mb-1"><i class="fa fa-ticket"></i> Tickets</p>
-                                    <p class="font-semibold text-sm text-indigo-700"><?= max(0, $ticketsAvailable) ?> Available</p>
+                                    <p class="text-xs text-gray-600 mb-1"><i class="fa fa-ticket"></i> <?= t('tickets') ?></p>
+                                    <p class="font-semibold text-sm text-indigo-700"><?= max(0, $ticketsAvailable) ?> <?= t('available') ?></p>
                                 </div>
                                 <div class="bg-indigo-50 rounded-2xl p-4">
                                     <p class="text-xs text-gray-600 mb-1"><i class="fa fa-users"></i> Attendees</p>
-                                    <p class="font-semibold text-sm"><?= $event['event_tickets_sold'] ?> Booked</p>
+                                    <p class="font-semibold text-sm"><?= $event['event_tickets_sold'] ?> <?= t('booked') ?></p>
                                 </div>
                             </div>
                         </div>
 
+                        <!-- Media Section -->
                         <div class="mb-6 rounded-2xl overflow-hidden bg-gradient-to-br from-indigo-400 to-purple-600 h-64 flex items-center justify-center">
                             <?php if ($event['event_ad_media'] === 'Image' && $media): ?>
+                                <!-- Image Slideshow -->
                                 <div class="relative w-full h-full">
-                                    <img id="slide-<?= $event['event_id'] ?>-0" src="<?= htmlspecialchars($media['image_a'] ?? '') ?>" 
+                                    <img id="slide-<?= $event['event_id'] ?>-0" src="<?= htmlspecialchars(assetUrl($media['image_a'] ?? '')) ?>" 
                                          class="w-full h-full object-cover" alt="Event Image">
+                                    <?php if ($media['image_b'] || $media['image_c'] || $media['image_d']): ?>
+                                        <button onclick="prevSlide(<?= $event['event_id'] ?>)" class="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full">
+                                            <i class="fa fa-chevron-left"></i>
+                                        </button>
+                                        <button onclick="nextSlide(<?= $event['event_id'] ?>)" class="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full">
+                                            <i class="fa fa-chevron-right"></i>
+                                        </button>
+                                        <div id="slides-data-<?= $event['event_id'] ?>" class="hidden">
+                                            <?php 
+                                                $slides = array_filter([$media['image_a'], $media['image_b'], $media['image_c'], $media['image_d']]);
+                                                echo json_encode(array_values(array_map(function($img) {
+                                                    return assetUrl($img, '');
+                                                }, $slides)));
+                                            ?>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
                             <?php elseif ($event['event_ad_media'] === 'Video' && $media): ?>
+                                <!-- Video -->
                                 <video width="100%" height="100%" controls class="w-full h-full object-cover">
-                                    <source src="<?= htmlspecialchars($media['video_uploaded'] ?? '') ?>" type="video/mp4">
+                                    <source src="<?= htmlspecialchars(assetUrl($media['video_uploaded'] ?? '')) ?>" type="video/mp4">
+                                    Your browser does not support the video tag.
                                 </video>
                             <?php else: ?>
                                 <div class="text-center">
                                     <i class="fa fa-image text-white text-4xl mb-4"></i>
-                                    <p class="text-white text-sm">No media available</p>
+                                    <p class="text-white text-sm"><?= t('no_media_available') ?></p>
                                 </div>
                             <?php endif; ?>
                         </div>
 
-                        <p class="text-gray-600 text-sm mb-6 line-clamp-3"><?= htmlspecialchars($event['event_description'] ?? 'No description provided') ?></p>
+                        <p class="text-gray-600 text-sm mb-6 line-clamp-3"><?= htmlspecialchars($event['event_description'] ?? t('no_description')) ?></p>
 
                         <?php if ($isVerified): ?>
                             <a href="ticket_booking.php?event_id=<?= $event['event_id'] ?>" 
                                class="w-full inline-block bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-700 hover:to-indigo-600 text-white py-3 px-6 rounded-2xl font-semibold text-center transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 transform">
-                                <i class="fa fa-ticket-alt mr-2"></i>Book Now
+                                <i class="fa fa-ticket-alt mr-2"></i><?= t('book_now') ?>
                             </a>
                         <?php else: ?>
                             <button onclick="showVerifyModal('Please verify your account to book tickets for this event')" 
                                     class="w-full bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-700 hover:to-indigo-600 text-white py-3 px-6 rounded-2xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 transform cursor-pointer">
-                                <i class="fa fa-ticket-alt mr-2"></i>Book Now
+                                <i class="fa fa-ticket-alt mr-2"></i><?= t('book_now') ?>
                             </button>
                         <?php endif; ?>
                     </div>
@@ -625,7 +665,7 @@ function assetUrl($path, $fallback = '') {
                 <?php if (empty($invitationEvents)): ?>
                     <div class="text-center py-16">
                         <i class="fa fa-envelope text-6xl text-gray-300 mb-4"></i>
-                        <p class="text-gray-500 text-lg">You have no invitations at the moment.</p>
+                        <p class="text-gray-500 text-lg"><?= t('no_invitations') ?></p>
                     </div>
                 <?php endif; ?>
             </div>
@@ -636,17 +676,17 @@ function assetUrl($path, $fallback = '') {
     <!-- STICKY FOOTER - Three Tab Navigation -->
     <footer class="glass fixed bottom-0 left-0 right-0 z-40 border-t border-white/30">
         <div class="max-w-7xl mx-auto px-4 flex justify-center">
-            <button onclick="switchTab('all')" id="allTabBtn" 
+            <button onclick="switchTab('all')" id="allTabBtn"
                     class="flex-1 max-w-xs px-6 py-4 text-center font-semibold text-indigo-700 border-b-4 border-indigo-700 bg-indigo-50/30 transition hover:bg-indigo-100/20">
-                <i class="fa fa-calendar mr-2"></i> All Events
+                <i class="fa fa-calendar mr-2"></i> <?= t('all_events') ?>
             </button>
-            <button onclick="switchTab('area')" id="areaTabBtn" 
+            <button onclick="switchTab('area')" id="areaTabBtn"
                     class="flex-1 max-w-xs px-6 py-4 text-center font-semibold text-gray-600 border-b-4 border-transparent transition hover:text-indigo-700 hover:bg-white/10">
-                <i class="fa fa-map-marker mr-2"></i> Your Area
+                <i class="fa fa-map-marker mr-2"></i> <?= t('your_area') ?>
             </button>
-            <button onclick="switchTab('invitations')" id="invitationsTabBtn" 
+            <button onclick="switchTab('invitations')" id="invitationsTabBtn"
                     class="flex-1 max-w-xs px-6 py-4 text-center font-semibold text-gray-600 border-b-4 border-transparent transition hover:text-indigo-700 hover:bg-white/10">
-                <i class="fa fa-envelope mr-2"></i> Your Invitations
+                <i class="fa fa-envelope mr-2"></i> <?= t('your_invitations') ?>
             </button>
         </div>
     </footer>

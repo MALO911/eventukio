@@ -105,15 +105,15 @@ $translations = [
     
     'suk' => [
         // Header - Sukuma translations (TO BE PROVIDED LATER)
-        'search_placeholder' => 'Ghitafuta shilewa...', 
-        'search_button' => 'Lolaga', 
+        'search_placeholder' => 'Tolaga shetwa...', 
+        'search_button' => 'Tolaga', 
         'change_language' => 'Gwishinja Lugha',
         'login' => "Kwingela", 
         'register' => 'Kwiunga', 
         
         // Main content
-        'upcoming_events' => 'Shetwa pye', 
-        'all_events' => 'Shilewa shose', 
+        'upcoming_events' => 'Shetwa ehiza', 
+        'all_events' => 'Shetwa pya', 
         'your_area' => 'Ieneo Lyako', 
         
         // Event card
@@ -122,27 +122,27 @@ $translations = [
         'time' => 'Ikanza', 
         'location' => 'Ipande', 
         'tickets' => 'Tiketi', 
-        'attendees' => 'Abuhudhuria', 
-        'available' => 'Zipo', 
+        'attendees' => 'Abaaleho', 
+        'available' => 'Ghaleho', 
         'booked' => 'Zimekwa', 
         'book_now' => 'Gweka sasa', 
-        'no_media' => 'Nduhu', 
-        'no_description' => 'Nduhu maelezo', 
+        'no_media' => 'Nduhu media', 
+        'no_description' => 'Ndoho maelezo', 
         
         // Empty states
-        'no_events' => 'Nduhu shilewa', 
-        'check_back_soon' => 'Uje baadae',
-        'no_area_events' => 'Nduhu shilewa ja hali', 
-        'enable_location' => 'Ghwezesha hali',
+        'no_events' => 'Ndoho shetwa', 
+        'check_back_soon' => 'Ukoshoka',
+        'no_area_events' => 'Nduhu shetwa ja ipande', 
+        'enable_location' => 'Ghwezesha ipande',
         
         // Location errors
         'geolocation_not_supported' => 'Ghutambuzi ja hali haufi', 
         'enable_location_access' => 'Tafadhali washa ruhusa ya eneo kuona matukio katika eneo lako.', 
-        'could_not_determine_location' => 'Haikuweza kuamua eneo lako. Tafadhali jaribu tena.', 
-        'no_events_found_location' => 'Ndulu shilewa ja hali lyako.', 
-        'error_loading_events' => 'Ndulu shilewa. Ghitafuta tena.',
-        'try_again' => 'Gheme tena', 
-        'media_preview_unavailable' => 'Kihakiki cha midia hakipatikani', 
+        'could_not_determine_location' => 'Ndolo dhimaga ipande.', 
+        'no_events_found_location' => 'Ndolo shetwa ja ipande lyako.', 
+        'error_loading_events' => 'Ndolo shetwa. Ghhemaga hange.',
+        'try_again' => 'Ghemaga hange', 
+        'media_preview_unavailable' => 'Ghikihakiki ja midia hakipatikani', 
     ],
 ];
 

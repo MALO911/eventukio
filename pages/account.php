@@ -26,7 +26,7 @@ $attended_count = $attended_stmt->fetchColumn();
 // Handle Language Update
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_lang') {
     $new_lang = $_POST['language'] ?? 'en';
-    $valid_languages = ['en', 'sw', 'suk', 'chag'];
+    $valid_languages = ['en', 'sw', 'suk'];
 
     if (in_array($new_lang, $valid_languages)) {
         // Use the new setUserLanguage function
@@ -38,9 +38,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             exit;
         }
 
-        // Regular form submission - redirect back
+        // Regular form submission - redirect back to refresh page with new language
         successMsg("Language updated successfully");
-        redirect('account.php');
+        redirect('pages/account.php');
     } else {
         if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
             echo json_encode(['success' => false, 'message' => 'Invalid language']);
@@ -109,8 +109,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
 <header class="glass sticky top-0 z-50">
     <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
-        <h1 class="text-2xl font-bold text-indigo-700">My Account</h1>
-        <a href="events.php" class="text-gray-700 hover:text-indigo-600"><i class="fa fa-arrow-left mr-1"></i>Home</a>
+        <h1 class="text-2xl font-bold text-indigo-700"><?= t('my_account') ?></h1>
+        <a href="events.php" class="text-gray-700 hover:text-indigo-600"><i class="fa fa-arrow-left mr-1"></i><?= t('home') ?></a>
     </div>
 </header>
 
@@ -127,16 +127,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     <!-- Quick Stats -->
     <div class="grid grid-cols-3 gap-4 mb-8">
         <div class="glass rounded-3xl p-6 text-center">
-            <p class="text-3xl font-bold text-indigo-600" data-i18n="account.events_hosted"><?= $hosted_count ?></p>
-            <p class="text-xs text-gray-500" data-i18n="account.events_hosted_desc">Events Hosted</p>
+            <p class="text-3xl font-bold text-indigo-600"><?= $hosted_count ?></p>
+            <p class="text-xs text-gray-500"><?= t('events_hosted') ?></p>
         </div>
         <div class="glass rounded-3xl p-6 text-center">
-            <p class="text-3xl font-bold text-indigo-600" data-i18n="account.events_attended"><?= $attended_count ?></p>
-            <p class="text-xs text-gray-500" data-i18n="account.events_attended_desc">Events Attended</p>
+            <p class="text-3xl font-bold text-indigo-600"><?= $attended_count ?></p>
+            <p class="text-xs text-gray-500"><?= t('events_attended') ?></p>
         </div>
         <div class="glass rounded-3xl p-6 text-center">
-            <p class="text-3xl font-bold text-green-500" data-i18n="account.wallet_balance">TZS <?= number_format($balance, 0) ?></p>
-            <p class="text-xs text-gray-500" data-i18n="account.wallet_balance_desc">Wallet Balance</p>
+            <p class="text-3xl font-bold text-green-500">TZS <?= number_format($balance, 0) ?></p>
+            <p class="text-xs text-gray-500"><?= t('wallet_balance') ?></p>
         </div>
     </div>
 
@@ -147,8 +147,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             <div class="flex items-center gap-4">
                 <i class="fa fa-user text-2xl text-indigo-600"></i>
                 <div>
-                    <p class="font-semibold" data-i18n="account.update_profile">Update Profile</p>
-                    <p class="text-sm text-gray-500" data-i18n="account.update_profile_desc">Edit personal information</p>
+                    <p class="font-semibold"><?= t('update_profile') ?></p>
+                    <p class="text-sm text-gray-500"><?= t('update_profile_desc') ?></p>
                 </div>
             </div>
             <i class="fa fa-chevron-right"></i>
@@ -159,8 +159,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             <div class="flex items-center gap-4">
                 <i class="fa fa-wallet text-2xl text-indigo-600"></i>
                 <div>
-                    <p class="font-semibold" data-i18n="account.manage_wallet">Manage Wallet</p>
-                    <p class="text-sm text-gray-500" data-i18n="account.manage_wallet_desc">Add money & view transactions</p>
+                    <p class="font-semibold"><?= t('manage_wallet') ?></p>
+                    <p class="text-sm text-gray-500"><?= t('manage_wallet_desc') ?></p>
                 </div>
             </div>
             <i class="fa fa-chevron-right"></i>
@@ -172,8 +172,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 <div class="flex items-center gap-4">
                     <i class="fa fa-cog text-2xl text-indigo-600"></i>
                     <div>
-                        <p class="font-semibold" data-i18n="account.settings">Settings</p>
-                        <p class="text-sm text-gray-500" data-i18n="account.settings_desc">Language & Theme preferences</p>
+                        <p class="font-semibold"><?= t('settings') ?></p>
+                        <p class="text-sm text-gray-500"><?= t('settings_desc') ?></p>
                     </div>
                 </div>
                 <i id="settings-arrow" class="fa fa-chevron-down transition-transform duration-300"></i>
@@ -184,7 +184,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     <button onclick="openModal('languageModal')" class="w-full glass flex items-center justify-between p-4 rounded-2xl hover:bg-white/20 transition">
                         <div class="flex items-center gap-3">
                             <i class="fa fa-language text-xl text-indigo-600"></i>
-                            <span class="font-medium" data-i18n="account.language">Language</span>
+                            <span class="font-medium"><?= t('language') ?></span>
                         </div>
                         <i class="fa fa-chevron-right text-sm"></i>
                     </button>
@@ -192,7 +192,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     <button onclick="openModal('themeModal')" class="w-full glass flex items-center justify-between p-4 rounded-2xl hover:bg-white/20 transition">
                         <div class="flex items-center gap-3">
                             <i class="fa fa-palette text-xl text-indigo-600"></i>
-                            <span class="font-medium" data-i18n="account.theme">Theme</span>
+                            <span class="font-medium"><?= t('theme') ?></span>
                         </div>
                         <i class="fa fa-chevron-right text-sm"></i>
                     </button>
@@ -205,8 +205,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             <div class="flex items-center gap-4">
                 <i class="fa fa-history text-2xl text-indigo-600"></i>
                 <div>
-                    <p class="font-semibold" data-i18n="account.history">History</p>
-                    <p class="text-sm text-gray-500" data-i18n="account.history_desc">Past events & memories</p>
+                    <p class="font-semibold"><?= t('history') ?></p>
+                    <p class="text-sm text-gray-500"><?= t('history_desc') ?></p>
                 </div>
             </div>
             <i class="fa fa-chevron-right"></i>
@@ -217,20 +217,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             <div class="flex items-center gap-4">
                 <i class="fa fa-trash-alt text-2xl"></i>
                 <div>
-                    <p class="font-semibold" data-i18n="account.delete_account">Delete Account</p>
-                    <p class="text-sm text-gray-500" data-i18n="account.delete_account_desc">Permanently delete your account</p>
+                    <p class="font-semibold"><?= t('delete_account') ?></p>
+                    <p class="text-sm text-gray-500"><?= t('delete_account_desc') ?></p>
                 </div>
             </div>
             <i class="fa fa-chevron-right"></i>
         </button>
 
         <!-- Logout -->
-        <a href="../logout.php" onclick="return confirm('Are you sure you want to logout?')" 
+        <a href="../logout.php" onclick="return confirm('Are you sure you want to logout?')"
            class="glass flex items-center justify-between p-6 rounded-3xl text-red-600 hover:bg-white/10 transition">
             <div class="flex items-center gap-4">
                 <i class="fa fa-sign-out-alt text-2xl"></i>
                 <div>
-                    <p class="font-semibold" data-i18n="account.logout">Logout</p>
+                    <p class="font-semibold"><?= t('logout') ?></p>
                 </div>
             </div>
         </a>
@@ -240,14 +240,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 <!-- Language Modal -->
 <div id="languageModal" class="modal-overlay" onclick="if(event.target===this) closeModal('languageModal')">
     <div class="modal-box">
-        <h3 class="text-xl font-bold mb-4" data-i18n="account.select_language">Select Language</h3>
+        <h3 class="text-xl font-bold mb-4"><?= t('select_language') ?></h3>
         <form method="POST" action="">
             <input type="hidden" name="action" value="update_lang">
             <div class="radio-group">
                 <label><input type="radio" name="language" value="en" <?= ($user['user_language'] ?? 'en') == 'en' ? 'checked' : '' ?>> English</label>
                 <label><input type="radio" name="language" value="sw" <?= ($user['user_language'] ?? 'en') == 'sw' ? 'checked' : '' ?>> Swahili</label>
                 <label><input type="radio" name="language" value="suk" <?= ($user['user_language'] ?? 'en') == 'suk' ? 'checked' : '' ?>> Sukuma</label>
-                <label><input type="radio" name="language" value="chag" <?= ($user['user_language'] ?? 'en') == 'chag' ? 'checked' : '' ?>> Chagga</label>
             </div>
             <div class="flex justify-end gap-2 mt-4">
                 <button type="button" onclick="closeModal('languageModal')" class="px-4 py-2 bg-gray-200 rounded-full">Cancel</button>
