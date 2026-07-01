@@ -104,45 +104,45 @@ $translations = [
     ],
     
     'suk' => [
-        // Header - Sukuma translations (TO BE PROVIDED BY MALONGO)
-        'search_placeholder' => 'Tafuta matukio...', // Placeholder
-        'search_button' => 'Tafuta', // Placeholder
-        'change_language' => 'Bhadili Lugha',
-        'login' => 'Ingila', // Placeholder
-        'register' => 'Jilunge', // Placeholder
+        // Header - Sukuma translations (TO BE PROVIDED LATER)
+        'search_placeholder' => 'Ghitafuta shilewa...', 
+        'search_button' => 'Lolaga', 
+        'change_language' => 'Gwishinja Lugha',
+        'login' => "Kwingela", 
+        'register' => 'Kwiunga', 
         
         // Main content
-        'upcoming_events' => 'Matukio Yajayo', // Placeholder
-        'all_events' => 'Matukio Yote', // Placeholder
-        'your_area' => 'Eneo Lyako', // Placeholder
+        'upcoming_events' => 'Shetwa pye', 
+        'all_events' => 'Shilewa shose', 
+        'your_area' => 'Ieneo Lyako', 
         
         // Event card
-        'event_host' => 'Mwenye Tukio', // Placeholder
-        'date' => 'Tarehe', // Placeholder
-        'time' => 'Saa', // Placeholder
-        'location' => 'Eneo', // Placeholder
-        'tickets' => 'Tiketi', // Placeholder
-        'attendees' => 'Washiriki', // Placeholder
-        'available' => 'Inapatikana', // Placeholder
-        'booked' => 'Imehifadhiwa', // Placeholder
-        'book_now' => 'Weka Nafasi Sasa', // Placeholder
-        'no_media' => 'Hakuna midia inayopatikana', // Placeholder
-        'no_description' => 'Hakuna maelezo yamepatikana', // Placeholder
+        'event_host' => "N'gwenekele mhayo", 
+        'date' => 'Ikanza', 
+        'time' => 'Ikanza', 
+        'location' => 'Ipande', 
+        'tickets' => 'Tiketi', 
+        'attendees' => 'Abuhudhuria', 
+        'available' => 'Zipo', 
+        'booked' => 'Zimekwa', 
+        'book_now' => 'Gweka sasa', 
+        'no_media' => 'Nduhu', 
+        'no_description' => 'Nduhu maelezo', 
         
         // Empty states
-        'no_events' => 'Hakuna matukio yametangazwa kwa sasa.', // Placeholder
-        'check_back_soon' => 'Rudi baadaye kwa matukio yajayo!', // Placeholder
-        'no_area_events' => 'Hakuna matukio katika eneo lako kwa sasa.', // Placeholder
-        'enable_location' => 'Washa ruhusa ya eneo kuona matukio karibu na wewe.', // Placeholder
+        'no_events' => 'Nduhu shilewa', 
+        'check_back_soon' => 'Uje baadae',
+        'no_area_events' => 'Nduhu shilewa ja hali', 
+        'enable_location' => 'Ghwezesha hali',
         
         // Location errors
-        'geolocation_not_supported' => 'Ufuatiliaji wa eneo haujaungwa mkono kwenye kifaa hiki.', // Placeholder
-        'enable_location_access' => 'Tafadhali washa ruhusa ya eneo kuona matukio katika eneo lako.', // Placeholder
-        'could_not_determine_location' => 'Haikuweza kuamua eneo lako. Tafadhali jaribu tena.', // Placeholder
-        'no_events_found_location' => 'Hakuna matukio yamepatikana katika eneo lako.', // Placeholder
-        'error_loading_events' => 'Kosa la kupakia matukio. Tafadhali jaribu tena.', // Placeholder
-        'try_again' => 'Jaribu Tena', // Placeholder
-        'media_preview_unavailable' => 'Kihakiki cha midia hakipatikani', // Placeholder
+        'geolocation_not_supported' => 'Ghutambuzi ja hali haufi', 
+        'enable_location_access' => 'Tafadhali washa ruhusa ya eneo kuona matukio katika eneo lako.', 
+        'could_not_determine_location' => 'Haikuweza kuamua eneo lako. Tafadhali jaribu tena.', 
+        'no_events_found_location' => 'Ndulu shilewa ja hali lyako.', 
+        'error_loading_events' => 'Ndulu shilewa. Ghitafuta tena.',
+        'try_again' => 'Gheme tena', 
+        'media_preview_unavailable' => 'Kihakiki cha midia hakipatikani', 
     ],
 ];
 

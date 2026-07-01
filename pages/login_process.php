@@ -31,6 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user_id'] = $user['user_id'];
             $_SESSION['user_full_name'] = $user['user_full_name'];
             $_SESSION['user_type'] = $user['user_type'];
+            $_SESSION['user_language'] = $user['user_language'] ?? 'en';
 
             // Log usage (optional)
             successMsg("Welcome back, " . $user['user_full_name'] . "!");

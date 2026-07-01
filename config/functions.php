@@ -21,12 +21,29 @@ function getCurrentUserId() {
 
 function getCurrentUser() {
     global $pdo;
-    $user_id = getCurrentUserId();
-    if (!$user_id) return null;
+    static $cachedUser = null;
+    static $queried = false;
 
-    $stmt = $pdo->prepare("SELECT * FROM user_basic_info WHERE user_id = ?");
-    $stmt->execute([$user_id]);
-    return $stmt->fetch();
+    if ($queried) {
+        return $cachedUser;
+    }
+
+    $user_id = getCurrentUserId();
+    if (!$user_id) {
+        $queried = true;
+        return null;
+    }
+
+    try {
+        $stmt = $pdo->prepare("SELECT * FROM user_basic_info WHERE user_id = ?");
+        $stmt->execute([$user_id]);
+        $cachedUser = $stmt->fetch() ?: null;
+    } catch (Exception $e) {
+        $cachedUser = null;
+    }
+
+    $queried = true;
+    return $cachedUser;
 }
 
 function getPageNameFromUrl($url) {
@@ -256,10 +273,8 @@ function setUserLanguage($lang) {
 }
 
 function t($key) {
-    // This will be replaced with proper i18next JS integration
-    // For now, simple fallback - this function is for server-side use only
-    // Client-side translations will use i18next JavaScript
-    return $key;
+    global $translations, $lang;
+    return $translations[$lang][$key] ?? $translations['en'][$key] ?? $key;
 }
 
 // ====================== ROLE CHECK HELPERS ======================
@@ -326,4 +341,298 @@ function getProfilePictureUrl($picture, $default = '../assets/images/default.png
 
 // Auto-load important files if needed
 // require_once __DIR__ . '/../includes/auth.php';
+
+// ====================== DYNAMIC THEMES ======================
+function getThemePayload($theme) {
+    $valid_themes = ['Oceanic Blue', 'Warm Glow', 'Luxe Jewel', 'Soft Pastel'];
+    if (!in_array($theme, $valid_themes)) {
+        $theme = 'Oceanic Blue';
+    }
+
+    $variables = '';
+    $body_class = '';
+
+    switch ($theme) {
+        case 'Warm Glow':
+            $variables = '
+                --body-bg: #FF9A8B;
+                --glass-bg: rgba(255, 248, 240, 0.15);
+                --glass-border: rgba(255, 255, 255, 0.25);
+                --glass-shadow: 0 8px 32px 0 rgba(232, 91, 117, 0.15);
+                --text-normal: #2D2D2D;
+                
+                --color-indigo-50: #FF9A8B;
+                --color-indigo-100: #FF8080;
+                --color-indigo-200: #FF6B6B;
+                --color-indigo-500: #FF8585;
+                --color-indigo-600: #FF6B6B;
+                --color-indigo-700: #FAF7F2;
+                --color-indigo-800: #E5BD75;
+                --color-indigo-900: #7A2828;
+                
+                --color-blue-50: #FF9A8B;
+                --color-blue-100: #FF8080;
+                --color-blue-200: #FF6B6B;
+                --color-blue-500: #FF8585;
+                --color-blue-600: #FF6B6B;
+                --color-blue-700: #FAF7F2;
+                --color-blue-900: #5C1D1D;
+                
+                --color-purple-900: #6B2222;
+                
+                --color-gray-100: #F3EFE9;
+                --color-gray-200: #E5E5E5;
+                --color-gray-300: #CCCCCC;
+                --color-gray-400: #888888;
+                --color-gray-500: #555555;
+                --color-gray-600: #2D2D2D;
+                --color-gray-700: #2D2D2D;
+                --color-gray-800: #1A1A1A;
+                --color-gray-900: #111111;
+            ';
+            $body_class = 'theme-warm-glow';
+            break;
+
+        case 'Luxe Jewel':
+            $variables = '
+                --body-bg: #2A1B4D;
+                --glass-bg: rgba(30, 30, 50, 0.35);
+                --glass-border: rgba(232, 185, 35, 0.3);
+                --glass-shadow: 0 8px 32px 0 rgba(123, 77, 255, 0.25), 0 0 12px rgba(232, 185, 35, 0.15);
+                --text-normal: #F0E6FF;
+                
+                --color-indigo-50: #2A1B4D;
+                --color-indigo-100: #1E1238;
+                --color-indigo-200: #150B28;
+                --color-indigo-500: #9C6FFF;
+                --color-indigo-600: #E8B923;
+                --color-indigo-700: #F0E6FF;
+                --color-indigo-800: #7B4DFF;
+                --color-indigo-900: #150B28;
+                
+                --color-blue-50: #2A1B4D;
+                --color-blue-100: #1E1238;
+                --color-blue-200: #150B28;
+                --color-blue-500: #9C6FFF;
+                --color-blue-600: #E8B923;
+                --color-blue-700: #F0E6FF;
+                --color-blue-900: #150B28;
+                
+                --color-purple-900: #1E1238;
+                
+                --color-gray-100: #2A1B4D;
+                --color-gray-200: #3D2D63;
+                --color-gray-300: #4B397A;
+                --color-gray-400: #888888;
+                --color-gray-500: #CCCCCC;
+                --color-gray-600: #F0E6FF;
+                --color-gray-700: #F0E6FF;
+                --color-gray-800: #FAF7F2;
+                --color-gray-900: #FFFFFF;
+            ';
+            $body_class = 'theme-luxe-jewel';
+            break;
+
+        case 'Soft Pastel':
+            $variables = '
+                --body-bg: #FCE7F3;
+                --glass-bg: rgba(255, 255, 255, 0.25);
+                --glass-border: rgba(255, 255, 255, 0.45);
+                --glass-shadow: 0 8px 32px 0 rgba(230, 230, 250, 0.2);
+                --text-normal: #2D2D2D;
+                
+                --color-indigo-50: #FCE7F3;
+                --color-indigo-100: #E6E6FA;
+                --color-indigo-200: #D6D6F5;
+                --color-indigo-500: #FF8FA3;
+                --color-indigo-600: #FF6B9D;
+                --color-indigo-700: #2D2D2D;
+                --color-indigo-800: #4ECDC4;
+                --color-indigo-900: #1A1A1A;
+                
+                --color-blue-50: #FCE7F3;
+                --color-blue-100: #E6E6FA;
+                --color-blue-200: #D6D6F5;
+                --color-blue-500: #FF8FA3;
+                --color-blue-600: #FF6B9D;
+                --color-blue-700: #2D2D2D;
+                --color-blue-900: #2A2A2A;
+                
+                --color-purple-900: #2D2D2D;
+                
+                --color-gray-100: #F3EFE9;
+                --color-gray-200: #E5E5E5;
+                --color-gray-300: #CCCCCC;
+                --color-gray-400: #888888;
+                --color-gray-500: #555555;
+                --color-gray-600: #2D2D2D;
+                --color-gray-700: #2D2D2D;
+                --color-gray-800: #1A1A1A;
+                --color-gray-900: #111111;
+            ';
+            $body_class = 'theme-soft-pastel';
+            break;
+
+        case 'Oceanic Blue':
+        default:
+            $variables = '
+                --body-bg: #FAF7F2;
+                --glass-bg: rgba(255, 248, 240, 0.75);
+                --glass-border: rgba(44, 44, 122, 0.15);
+                --glass-shadow: 0 8px 32px 0 rgba(44, 44, 122, 0.08);
+                --text-normal: #1F1F1F;
+                
+                --color-indigo-50: #FAF7F2;
+                --color-indigo-100: #F3EFE9;
+                --color-indigo-200: #E8E3D7;
+                --color-indigo-500: #33CCFF;
+                --color-indigo-600: #00BFFF;
+                --color-indigo-700: #2C2C7A;
+                --color-indigo-800: #1E1E54;
+                --color-indigo-900: #111130;
+                
+                --color-blue-50: #FAF7F2;
+                --color-blue-100: #F3EFE9;
+                --color-blue-200: #E8E3D7;
+                --color-blue-500: #33CCFF;
+                --color-blue-600: #00BFFF;
+                --color-blue-700: #2C2C7A;
+                --color-blue-900: #2C2C7A;
+                
+                --color-purple-900: #2C2C7A;
+                
+                --color-gray-100: #F3EFE9;
+                --color-gray-200: #E5E5E5;
+                --color-gray-300: #CCCCCC;
+                --color-gray-400: #888888;
+                --color-gray-500: #555555;
+                --color-gray-600: #1F1F1F;
+                --color-gray-700: #1F1F1F;
+                --color-gray-800: #111111;
+                --color-gray-900: #000000;
+            ';
+            $body_class = 'theme-oceanic-blue';
+            break;
+    }
+
+    $styles = '
+    <!-- Eventukio Theme Styles -->
+    <style>
+    :root {
+        ' . $variables . '
+    }
+    body {
+        background: var(--body-bg) !important;
+        color: var(--text-normal) !important;
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    .glass {
+        background: var(--glass-bg) !important;
+        border: 1px solid var(--glass-border) !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        box-shadow: var(--glass-shadow) !important;
+        transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    /* Ensure solid background cards / modals retain dark readable text */
+    .modal-box, .bg-white, [class*="bg-white"] {
+        background-color: #ffffff !important;
+        color: #1f1f1f !important;
+    }
+    .modal-box h1, .modal-box h2, .modal-box h3, .modal-box h4, .modal-box h5, .modal-box h6,
+    .bg-white h1, .bg-white h2, .bg-white h3, .bg-white h4, .bg-white h5, .bg-white h6 {
+        color: #1f1f1f !important;
+    }
+    .modal-box p, .bg-white p {
+        color: #4b5563 !important;
+    }
+    .modal-box label, .bg-white label {
+        color: #374151 !important;
+    }
+    .modal-box input, .modal-box select, .modal-box textarea,
+    .bg-white input, .bg-white select, .bg-white textarea {
+        color: #1f1f1f !important;
+        border-color: #d1d5db !important;
+    }
+    
+    /* Soft Pastel dots pattern background */
+    body.theme-soft-pastel {
+        background-color: var(--body-bg) !important;
+        background-image: 
+            radial-gradient(circle, rgba(255, 107, 157, 0.12) 8%, transparent 9%),
+            radial-gradient(circle, rgba(78, 205, 196, 0.12) 8%, transparent 9%) !important;
+        background-size: 32px 32px !important;
+        background-position: 0 0, 16px 16px !important;
+    }
+    </style>
+    ';
+
+    $scripts = '
+    <!-- Eventukio Tailwind configuration override script -->
+    <script>
+    (function() {
+        // Apply body theme class
+        document.addEventListener("DOMContentLoaded", function() {
+            document.body.classList.add("' . $body_class . '");
+        });
+        
+        // Define function to configure Tailwind dynamically if Tailwind CDN is loaded
+        function configureTailwind() {
+            if (typeof tailwind !== "undefined") {
+                tailwind.config = {
+                    theme: {
+                        extend: {
+                            colors: {
+                                indigo: {
+                                    50: "var(--color-indigo-50)",
+                                    100: "var(--color-indigo-100)",
+                                    200: "var(--color-indigo-200)",
+                                    500: "var(--color-indigo-500)",
+                                    600: "var(--color-indigo-600)",
+                                    700: "var(--color-indigo-700)",
+                                    800: "var(--color-indigo-800)",
+                                    900: "var(--color-indigo-900)"
+                                },
+                                blue: {
+                                    50: "var(--color-blue-50)",
+                                    100: "var(--color-blue-100)",
+                                    200: "var(--color-blue-200)",
+                                    500: "var(--color-blue-500)",
+                                    600: "var(--color-blue-600)",
+                                    700: "var(--color-blue-700)",
+                                    900: "var(--color-blue-900)"
+                                },
+                                purple: {
+                                    900: "var(--color-purple-900)"
+                                },
+                                gray: {
+                                    100: "var(--color-gray-100)",
+                                    200: "var(--color-gray-200)",
+                                    300: "var(--color-gray-300)",
+                                    400: "var(--color-gray-400)",
+                                    500: "var(--color-gray-500)",
+                                    600: "var(--color-gray-600)",
+                                    700: "var(--color-gray-700)",
+                                    800: "var(--color-gray-800)",
+                                    900: "var(--color-gray-900)"
+                                }
+                            }
+                        }
+                    }
+                };
+            }
+        }
+        
+        // Run Tailwind configuration
+        configureTailwind();
+    })();
+    </script>
+    ';
+
+    return [
+        'styles' => $styles,
+        'scripts' => $scripts
+    ];
+}
 ?>

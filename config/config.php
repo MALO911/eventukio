@@ -65,6 +65,43 @@ function clean($data) {
 }
 
 // Include other core files
+require_once __DIR__ . '/global_translations.php';
 require_once __DIR__ . '/functions.php';
 
+// Determine the user's theme during request startup, while database connection is active
+$userTheme = DEFAULT_THEME;
+if (isLoggedIn()) {
+    $user = getCurrentUser();
+    if ($user && isset($user['user_theme'])) {
+        $userTheme = $user['user_theme'];
+    }
+}
+
+// ====================== OUTPUT BUFFERING FOR THEMING ======================
+ob_start(function($buffer) use ($userTheme) {
+    // Only intercept if this is an HTML response containing </head>
+    if (stripos($buffer, '</head>') === false) {
+        return $buffer;
+    }
+
+    // Generate style & scripts payload using the cached theme string
+    $payload = getThemePayload($userTheme);
+
+    // Inject scripts before tailwind CDN if it exists
+    $tailwindTag = 'cdn.tailwindcss.com';
+    $tagPos = stripos($buffer, $tailwindTag);
+    if ($tagPos !== false) {
+        $scriptStartPos = strrpos(substr($buffer, 0, $tagPos), '<script');
+        if ($scriptStartPos !== false) {
+            $buffer = substr($buffer, 0, $scriptStartPos) . $payload['scripts'] . substr($buffer, $scriptStartPos);
+        } else {
+            $buffer = str_ireplace('</head>', $payload['scripts'] . '</head>', $buffer);
+        }
+    } else {
+        $buffer = str_ireplace('</head>', $payload['scripts'] . '</head>', $buffer);
+    }
+
+    // Always inject styles before </head>
+    return str_ireplace('</head>', $payload['styles'] . '</head>', $buffer);
+});
 ?>
